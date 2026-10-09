@@ -1,0 +1,731 @@
+{
+  "schema": "civic-poc-cases/1.0",
+  "metadata": {
+    "description": "第一弾PoC／制度・補助金案内。制度・資料・自治体・相談者は全て架空。",
+    "as_of_note": "基準日は2026-10-01で固定。実時計の今日を意味しない。",
+    "original_html_sha256": "3a52e33171a16e9c44ffff001176838e5a1a43c2a03844990b3c07b4cc60ff7a",
+    "public_release_note": "外部公表の可否、知財、公表文、社名使用は別途確認。実住民データ・外部通信・実AI接続なし。"
+  },
+  "requirements": {
+    "id": "BRP-DEMO-01",
+    "version": "1.0",
+    "schema": "civic-answer-adoption-demo/1.0",
+    "target": {
+      "municipality": "自治体X",
+      "program_id": "DEMO-DX-2026"
+    },
+    "allowed_data": "public_sample_and_synthetic",
+    "permitted_use": "staff_answer_draft",
+    "source_catalog": "SYNTHETIC-CATALOG-2026-10",
+    "decision_order": [
+      "REJECT",
+      "HOLD",
+      "PASS"
+    ],
+    "criteria": [
+      {
+        "id": "R01",
+        "name": "対象自治体・制度の一致",
+        "description": "回答・参照資料が、依頼された自治体と制度を指しているか。"
+      },
+      {
+        "id": "R02",
+        "name": "資料の版・募集期間",
+        "description": "採用対象の版と固定基準日に照らして、資料・案内期間が有効か。"
+      },
+      {
+        "id": "R03",
+        "name": "相談条件と案内の対応",
+        "description": "事業所、従業員数、滞納、重複利用の既知・未知を区別する。"
+      },
+      {
+        "id": "R04",
+        "name": "回答中の主張と根拠",
+        "description": "自治体・金額・補助率・期限・対象候補の主張を、資料中の項目に対応付ける。"
+      },
+      {
+        "id": "R05",
+        "name": "必須条件・断定の抑制",
+        "description": "必須の注意条件を記載し、採択・受給を確定したように表現しない。"
+      },
+      {
+        "id": "R06",
+        "name": "データ区分・処理設定",
+        "description": "同梱の架空サンプルと合成データだけを使う構成か。実データ判定は対象外。"
+      },
+      {
+        "id": "R07",
+        "name": "利用範囲・人間による確定",
+        "description": "職員の回答案確認に限定し、対外自動送信や自動決定を許可しない。"
+      },
+      {
+        "id": "R08",
+        "name": "主張・資料・記録の同一性",
+        "description": "同梱資料の内容、主張が参照する内容識別値、表示文と構造化主張を照合する。"
+      }
+    ],
+    "mandatory_conditions": [
+      "establishment",
+      "employees",
+      "tax",
+      "duplicate",
+      "human_decision"
+    ],
+    "gate_semantics": "All criteria PASS -> staff draft only. Any REJECT overrides HOLD. No administrative decision or external transmission.",
+    "exclusions": [
+      "legal_compliance",
+      "source_authenticity",
+      "real_applicant_facts",
+      "general_natural_language_correctness",
+      "formal_proof_checking",
+      "production_privacy_assurance"
+    ]
+  },
+  "source_catalog": [
+    {
+      "id": "SRC-01",
+      "title": "自治体X 小規模事業者デジタル活用支援補助金 募集要領（架空）",
+      "version": "1.2",
+      "year": 2026,
+      "municipality": "自治体X",
+      "program_id": "DEMO-DX-2026",
+      "published_at": "2026-09-01",
+      "valid_from": "2026-09-01",
+      "valid_to": "2026-10-31",
+      "classification": "public_sample",
+      "facts": {
+        "municipality": "自治体X",
+        "program_id": "DEMO-DX-2026",
+        "employee_limit": 20,
+        "max_yen": 300000,
+        "rate": 0.5,
+        "deadline": "2026-10-31",
+        "establishment_required": true,
+        "tax_arrears_allowed": false,
+        "duplicate_allowed": false
+      },
+      "sections": {
+        "scope": "§1 対象地域・制度",
+        "eligibility": "§2 対象事業者",
+        "amount": "§3 補助率・上限",
+        "period": "§4 受付期間"
+      },
+      "text": "【架空のデモ資料】\n§1 自治体Xに事業所を有する小規模事業者のデジタル活用を支援する。\n§2 常用従業員20人以下、市税の滞納がないこと、同じ経費で他制度の補助を受けていないこと。\n§3 補助率は対象経費の1/2、上限30万円。\n§4 申請受付は2026年9月1日から2026年10月31日まで。"
+    },
+    {
+      "id": "SRC-02",
+      "title": "申請・案内時の確認事項（架空）",
+      "version": "1.0",
+      "year": 2026,
+      "municipality": "自治体X",
+      "program_id": "DEMO-DX-2026",
+      "published_at": "2026-09-01",
+      "valid_from": "2026-09-01",
+      "valid_to": "2026-10-31",
+      "classification": "public_sample",
+      "facts": {
+        "mandatory_conditions": [
+          "establishment",
+          "employees",
+          "tax",
+          "duplicate",
+          "human_decision"
+        ],
+        "award_guarantee": false,
+        "final_decision": "human_administrative_review"
+      },
+      "sections": {
+        "conditions": "§1 案内に含める確認条件",
+        "review": "§2 審査・決定"
+      },
+      "text": "【架空のデモ資料】\n§1 案内には、市内事業所・従業員数・市税滞納・同一経費への重複補助を確認条件として明記する。\n§2 申請可能性の案内は交付・採択の決定ではない。正式な申請・審査を経て自治体が判断する。回答案の対外使用には職員の確認が必要。"
+    }
+  ],
+  "claim_metadata": {
+    "municipality": {
+      "label": "案内する自治体",
+      "source": "SRC-01",
+      "section": "scope"
+    },
+    "max_yen": {
+      "label": "補助上限額",
+      "source": "SRC-01",
+      "section": "amount"
+    },
+    "rate": {
+      "label": "補助率",
+      "source": "SRC-01",
+      "section": "amount"
+    },
+    "deadline": {
+      "label": "申請期限",
+      "source": "SRC-01",
+      "section": "period"
+    },
+    "eligibility": {
+      "label": "案内上の対象候補",
+      "source": "SRC-01",
+      "section": "eligibility"
+    },
+    "conditions": {
+      "label": "必須条件・注意事項",
+      "source": "SRC-02",
+      "section": "conditions"
+    },
+    "award_guarantee": {
+      "label": "採択・受給を断定しない",
+      "source": "SRC-02",
+      "section": "review"
+    }
+  },
+  "base_input": {
+    "id": "CASE-01",
+    "label": "通常の案内",
+    "as_of": "2026-10-01",
+    "target": {
+      "municipality": "自治体X",
+      "program_id": "DEMO-DX-2026"
+    },
+    "applicant": {
+      "id": "SYNTHETIC-A",
+      "label": "架空の相談者 A",
+      "synthetic": true,
+      "establishment": true,
+      "employees": 8,
+      "tax_arrears": false,
+      "duplicate": false
+    },
+    "source_ids": [
+      "SRC-01",
+      "SRC-02"
+    ],
+    "data_policy": {
+      "classification": "public_sample_and_synthetic",
+      "template_only": true,
+      "network": "none"
+    },
+    "workflow": {
+      "use": "staff_answer_draft",
+      "human_confirmation": true,
+      "external_send": false,
+      "automatic_award": false
+    },
+    "note": "資料と相談条件が揃っている例です。採用可でも、職員が確認する回答案の範囲にとどめます。",
+    "question": "自治体Xに事業所があります。従業員8人ですが、デジタル化の補助制度を利用できますか？",
+    "resolution_log": [],
+    "candidate": {
+      "program_id": "DEMO-DX-2026",
+      "claims": {
+        "municipality": {
+          "value": "自治体X",
+          "source_id": "SRC-01",
+          "section": "scope",
+          "source_hash": "85928682e9674746ed21537e6725d55a11f2508f08ae5e865c10433fc8d7bed6"
+        },
+        "max_yen": {
+          "value": 300000,
+          "source_id": "SRC-01",
+          "section": "amount",
+          "source_hash": "85928682e9674746ed21537e6725d55a11f2508f08ae5e865c10433fc8d7bed6"
+        },
+        "rate": {
+          "value": 0.5,
+          "source_id": "SRC-01",
+          "section": "amount",
+          "source_hash": "85928682e9674746ed21537e6725d55a11f2508f08ae5e865c10433fc8d7bed6"
+        },
+        "deadline": {
+          "value": "2026-10-31",
+          "source_id": "SRC-01",
+          "section": "period",
+          "source_hash": "85928682e9674746ed21537e6725d55a11f2508f08ae5e865c10433fc8d7bed6"
+        },
+        "eligibility": {
+          "value": "candidate",
+          "source_id": "SRC-01",
+          "section": "eligibility",
+          "source_hash": "85928682e9674746ed21537e6725d55a11f2508f08ae5e865c10433fc8d7bed6"
+        },
+        "conditions": {
+          "value": [
+            "establishment",
+            "employees",
+            "tax",
+            "duplicate",
+            "human_decision"
+          ],
+          "source_id": "SRC-02",
+          "section": "conditions",
+          "source_hash": "27a574de2c90f795dc229a177409d09f44a3403415d48aada74ff517e3c62422"
+        },
+        "award_guarantee": {
+          "value": false,
+          "source_id": "SRC-02",
+          "section": "review",
+          "source_hash": "27a574de2c90f795dc229a177409d09f44a3403415d48aada74ff517e3c62422"
+        }
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "key": "normal",
+      "label": "通常の案内",
+      "expected": "PASS",
+      "changes": {}
+    },
+    {
+      "key": "missing",
+      "label": "相談条件が不足",
+      "expected": "HOLD",
+      "changes": {
+        "id": "CASE-02",
+        "label": "相談条件が不足",
+        "applicant.employees": null,
+        "applicant.tax_arrears": null,
+        "candidate.claims.eligibility.value": "needs_review",
+        "note": "従業員数・市税滞納の有無が未確認です。不足を職員に示し、情報が揃うまで回答案の採用を保留します。",
+        "question": "自治体Xに事業所があります。デジタル化の補助制度について教えてください。"
+      }
+    },
+    {
+      "key": "wrong_city",
+      "label": "自治体が違う",
+      "expected": "REJECT",
+      "changes": {
+        "id": "CASE-03",
+        "label": "自治体が違う",
+        "candidate.claims.municipality.value": "自治体Y",
+        "note": "依頼は自治体Xですが、回答は自治体Yの制度として案内しています。対象の食い違いを検出します。"
+      }
+    },
+    {
+      "key": "stale",
+      "label": "古い資料",
+      "expected": "REJECT",
+      "changes": {
+        "id": "CASE-04",
+        "label": "古い資料",
+        "sources.0.version": "0.9",
+        "sources.0.year": 2025,
+        "sources.0.published_at": "2025-09-01",
+        "sources.0.valid_from": "2025-09-01",
+        "sources.0.valid_to": "2025-10-31",
+        "sources.0.facts.deadline": "2025-10-31",
+        "sources.0.text": "【架空のデモ資料】\n§1 自治体Xに事業所を有する小規模事業者のデジタル活用を支援する。\n§2 常用従業員20人以下、市税の滞納がないこと、同じ経費で他制度の補助を受けていないこと。\n§3 補助率は対象経費の1/2、上限30万円。\n§4 申請受付は2025年9月1日から2025年10月31日まで。",
+        "candidate.claims.deadline.value": "2025-10-31",
+        "note": "2026年度の相談に、2025年度の資料を参照した例です。採用対象の版・期間と一致しないため止めます。"
+      }
+    },
+    {
+      "key": "unsupported",
+      "label": "根拠が不足",
+      "expected": "HOLD",
+      "changes": {
+        "id": "CASE-05",
+        "label": "根拠が不足",
+        "candidate.claims.max_yen.source_id": null,
+        "candidate.claims.max_yen.section": null,
+        "candidate.claims.max_yen.source_hash": null,
+        "note": "上限30万円という値は回答にありますが、その主張に対応する根拠が未登録です。値が偶然合っていても採用を保留します。"
+      }
+    },
+    {
+      "key": "inflated",
+      "label": "上限額が不一致",
+      "expected": "REJECT",
+      "changes": {
+        "id": "CASE-06",
+        "label": "上限額が不一致",
+        "candidate.claims.max_yen.value": 600000,
+        "note": "回答は「上限60万円」ですが、資料は「上限30万円」です。根拠のある不整合として不採用にします。"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "key": "TEST-01",
+      "label": "正常：対象候補・根拠あり",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-01",
+        "label": "正常：対象候補・根拠あり"
+      }
+    },
+    {
+      "key": "TEST-02",
+      "label": "境界値：従業員20人",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-02",
+        "label": "境界値：従業員20人",
+        "applicant.employees": 20
+      }
+    },
+    {
+      "key": "TEST-03",
+      "label": "境界値：従業員0人",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-03",
+        "label": "境界値：従業員0人",
+        "applicant.employees": 0
+      }
+    },
+    {
+      "key": "TEST-04",
+      "label": "期間境界：募集開始日",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-04",
+        "label": "期間境界：募集開始日",
+        "as_of": "2026-09-01"
+      }
+    },
+    {
+      "key": "TEST-05",
+      "label": "期間境界：募集終了日",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-05",
+        "label": "期間境界：募集終了日",
+        "as_of": "2026-10-31"
+      }
+    },
+    {
+      "key": "TEST-06",
+      "label": "正しい対象外案内：従業員21人",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-06",
+        "label": "正しい対象外案内：従業員21人",
+        "applicant.employees": 21,
+        "candidate.claims.eligibility.value": "out_of_scope"
+      }
+    },
+    {
+      "key": "TEST-07",
+      "label": "正しい対象外案内：市税滞納あり",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-07",
+        "label": "正しい対象外案内：市税滞納あり",
+        "applicant.tax_arrears": true,
+        "candidate.claims.eligibility.value": "out_of_scope"
+      }
+    },
+    {
+      "key": "TEST-08",
+      "label": "正しい対象外案内：重複補助あり",
+      "expected": "PASS",
+      "changes": {
+        "id": "TEST-08",
+        "label": "正しい対象外案内：重複補助あり",
+        "applicant.duplicate": true,
+        "candidate.claims.eligibility.value": "out_of_scope"
+      }
+    },
+    {
+      "key": "TEST-09",
+      "label": "従業員数が未確認",
+      "expected": "HOLD",
+      "changes": {
+        "id": "TEST-09",
+        "label": "従業員数が未確認",
+        "applicant.employees": null,
+        "candidate.claims.eligibility.value": "needs_review"
+      }
+    },
+    {
+      "key": "TEST-10",
+      "label": "市税滞納が未確認",
+      "expected": "HOLD",
+      "changes": {
+        "id": "TEST-10",
+        "label": "市税滞納が未確認",
+        "applicant.tax_arrears": null,
+        "candidate.claims.eligibility.value": "needs_review"
+      }
+    },
+    {
+      "key": "TEST-11",
+      "label": "事業所の条件が未確認",
+      "expected": "HOLD",
+      "changes": {
+        "id": "TEST-11",
+        "label": "事業所の条件が未確認",
+        "applicant.establishment": null,
+        "candidate.claims.eligibility.value": "needs_review"
+      }
+    },
+    {
+      "key": "TEST-12",
+      "label": "重複補助が未確認",
+      "expected": "HOLD",
+      "changes": {
+        "id": "TEST-12",
+        "label": "重複補助が未確認",
+        "applicant.duplicate": null,
+        "candidate.claims.eligibility.value": "needs_review"
+      }
+    },
+    {
+      "key": "TEST-13",
+      "label": "募集要領を参照に含めていない",
+      "expected": "HOLD",
+      "changes": {
+        "id": "TEST-13",
+        "label": "募集要領を参照に含めていない",
+        "source_ids": [
+          "SRC-02"
+        ]
+      }
+    },
+    {
+      "key": "TEST-14",
+      "label": "上限額の根拠対応が未登録",
+      "expected": "HOLD",
+      "changes": {
+        "id": "TEST-14",
+        "label": "上限額の根拠対応が未登録",
+        "candidate.claims.max_yen.source_id": null,
+        "candidate.claims.max_yen.section": null,
+        "candidate.claims.max_yen.source_hash": null
+      }
+    },
+    {
+      "key": "TEST-15",
+      "label": "確認事項のスナップショットが欠落",
+      "expected": "HOLD",
+      "changes": {
+        "id": "TEST-15",
+        "label": "確認事項のスナップショットが欠落",
+        "sources": [
+          {
+            "id": "SRC-01",
+            "title": "自治体X 小規模事業者デジタル活用支援補助金 募集要領（架空）",
+            "version": "1.2",
+            "year": 2026,
+            "municipality": "自治体X",
+            "program_id": "DEMO-DX-2026",
+            "published_at": "2026-09-01",
+            "valid_from": "2026-09-01",
+            "valid_to": "2026-10-31",
+            "classification": "public_sample",
+            "facts": {
+              "municipality": "自治体X",
+              "program_id": "DEMO-DX-2026",
+              "employee_limit": 20,
+              "max_yen": 300000,
+              "rate": 0.5,
+              "deadline": "2026-10-31",
+              "establishment_required": true,
+              "tax_arrears_allowed": false,
+              "duplicate_allowed": false
+            },
+            "sections": {
+              "scope": "§1 対象地域・制度",
+              "eligibility": "§2 対象事業者",
+              "amount": "§3 補助率・上限",
+              "period": "§4 受付期間"
+            },
+            "text": "【架空のデモ資料】\n§1 自治体Xに事業所を有する小規模事業者のデジタル活用を支援する。\n§2 常用従業員20人以下、市税の滞納がないこと、同じ経費で他制度の補助を受けていないこと。\n§3 補助率は対象経費の1/2、上限30万円。\n§4 申請受付は2026年9月1日から2026年10月31日まで。"
+          }
+        ]
+      }
+    },
+    {
+      "key": "TEST-16",
+      "label": "回答が別の自治体を案内",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-16",
+        "label": "回答が別の自治体を案内",
+        "candidate.claims.municipality.value": "自治体Y"
+      }
+    },
+    {
+      "key": "TEST-17",
+      "label": "回答の対象制度IDが異なる",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-17",
+        "label": "回答の対象制度IDが異なる",
+        "candidate.program_id": "OTHER-PROGRAM"
+      }
+    },
+    {
+      "key": "TEST-18",
+      "label": "募集終了日の翌日",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-18",
+        "label": "募集終了日の翌日",
+        "as_of": "2026-11-01"
+      }
+    },
+    {
+      "key": "TEST-19",
+      "label": "募集開始日の前日",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-19",
+        "label": "募集開始日の前日",
+        "as_of": "2026-08-31"
+      }
+    },
+    {
+      "key": "TEST-20",
+      "label": "古い資料版を参照",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-20",
+        "label": "古い資料版を参照",
+        "sources.0.version": "0.9"
+      }
+    },
+    {
+      "key": "TEST-21",
+      "label": "上限30万円を60万円と案内",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-21",
+        "label": "上限30万円を60万円と案内",
+        "candidate.claims.max_yen.value": 600000
+      }
+    },
+    {
+      "key": "TEST-22",
+      "label": "補助率1/2を75%と案内",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-22",
+        "label": "補助率1/2を75%と案内",
+        "candidate.claims.rate.value": 0.75
+      }
+    },
+    {
+      "key": "TEST-23",
+      "label": "申請期限を誤って案内",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-23",
+        "label": "申請期限を誤って案内",
+        "candidate.claims.deadline.value": "2026-11-30"
+      }
+    },
+    {
+      "key": "TEST-24",
+      "label": "対象外なのに対象候補と案内",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-24",
+        "label": "対象外なのに対象候補と案内",
+        "applicant.employees": 21
+      }
+    },
+    {
+      "key": "TEST-25",
+      "label": "重複補助の必須条件を欠落",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-25",
+        "label": "重複補助の必須条件を欠落",
+        "candidate.claims.conditions.value": [
+          "establishment",
+          "employees",
+          "tax",
+          "human_decision"
+        ]
+      }
+    },
+    {
+      "key": "TEST-26",
+      "label": "採択・受給を確定と断定",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-26",
+        "label": "採択・受給を確定と断定",
+        "candidate.claims.award_guarantee.value": true
+      }
+    },
+    {
+      "key": "TEST-27",
+      "label": "合成データ以外の区分を指定",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-27",
+        "label": "合成データ以外の区分を指定",
+        "applicant.synthetic": false,
+        "data_policy.classification": "real_resident_data"
+      }
+    },
+    {
+      "key": "TEST-28",
+      "label": "対外自動送信を許可する設定",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-28",
+        "label": "対外自動送信を許可する設定",
+        "workflow.external_send": true
+      }
+    },
+    {
+      "key": "TEST-29",
+      "label": "職員確認なしで受給自動決定",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-29",
+        "label": "職員確認なしで受給自動決定",
+        "workflow.human_confirmation": false,
+        "workflow.automatic_award": true
+      }
+    },
+    {
+      "key": "TEST-30",
+      "label": "資料本文の内容が変更されている",
+      "expected": "REJECT",
+      "changes": {
+        "id": "TEST-30",
+        "label": "資料本文の内容が変更されている",
+        "sources.0.text": "【架空のデモ資料】\n§1 自治体Xに事業所を有する小規模事業者のデジタル活用を支援する。\n§2 常用従業員20人以下、市税の滞納がないこと、同じ経費で他制度の補助を受けていないこと。\n§3 補助率は対象経費の1/2、上限60万円。\n§4 申請受付は2026年9月1日から2026年10月31日まで。"
+      }
+    }
+  ],
+  "completions": {
+    "missing": {
+      "changes": {
+        "applicant.employees": 8,
+        "applicant.tax_arrears": false,
+        "candidate.claims.eligibility.value": "candidate",
+        "note": "デモ上で「従業員8人・滞納なし」を補完しました。回答案を更新し、同じ採用条件で再判定します。"
+      },
+      "log": {
+        "prior_decision": "HOLD",
+        "change": {
+          "employees": 8,
+          "tax_arrears": false
+        },
+        "source": "synthetic_case_completion",
+        "real_person_confirmation": false
+      }
+    },
+    "unsupported": {
+      "changes": {
+        "candidate.claims.max_yen.source_id": "SRC-01",
+        "candidate.claims.max_yen.section": "amount",
+        "candidate.claims.max_yen.source_hash": "85928682e9674746ed21537e6725d55a11f2508f08ae5e865c10433fc8d7bed6",
+        "note": "上限額の根拠としてSRC-01 §3を対応付けました。資料に書かれた値と、回答の値を再照合します。"
+      },
+      "log": {
+        "prior_decision": "HOLD",
+        "change": {
+          "claim": "max_yen",
+          "source_id": "SRC-01",
+          "section": "amount"
+        },
+        "source": "synthetic_evidence_binding"
+      }
+    }
+  }
+}

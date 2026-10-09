@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>自治体AI 回答採用アシュアランス｜第一弾PoC 完成イメージ</title>
+<style>
+:root{--ink:#142f3d;--ink2:#355460;--muted:#657985;--subtle:#8a9ba4;--line:#dce5e8;--surface:#fff;--bg:#f2f5f6;--navy:#102d3b;--teal:#087c70;--teal-deep:#075e57;--teal-soft:#e9f5f1;--amber:#986008;--amber-soft:#fff5e2;--red:#b54345;--red-soft:#fceff0;--blue:#376f9b;--blue-soft:#ecf3f9;--radius:15px;--shadow:0 9px 30px #16303d08}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}a{color:var(--teal)}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #35a496;outline-offset:4px}h1,h2,h3,h4,p{margin:0}button{color:inherit}svg{display:inline-block;vertical-align:middle;flex-shrink:0}.icon{width:18px;height:18px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;letter-spacing:.02em}.kicker{font-size:11px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}.muted{color:var(--muted)}.small{font-size:12px}.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}.skip{position:fixed;left:12px;top:-70px;z-index:500;background:#fff;padding:12px;border-radius:6px}.skip:focus{top:12px}.wrap{width:min(1376px,calc(100% - 72px));margin-inline:auto}
+.topbar{background:var(--navy);color:white}.topinner{height:78px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:16px;min-width:0}.brandmark{width:36px;height:36px;border:1px solid #799cae70;border-radius:10px;display:grid;place-items:center;flex-shrink:0;color:#8bddd0}.brandmark .icon{width:23px;height:23px}.brandname{font-size:15px;font-weight:750;letter-spacing:.015em}.brandmeta{font-size:10px;letter-spacing:.12em;color:#98b0be;margin-top:1px}.topright{display:flex;align-items:center;gap:18px}.prototype{padding:4px 9px;border:1px solid #92abbb66;border-radius:4px;color:#c8dce7;font-size:10px;letter-spacing:.12em;white-space:nowrap}.offline{font-size:11px;color:#b5cbd6;display:flex;align-items:center;gap:7px;white-space:nowrap}.dot{width:6px;height:6px;background:#78c4af;border-radius:50%;display:inline-block}
+.navrow{background:#fff;border-bottom:1px solid var(--line)}.navinner{display:flex;align-items:center;justify-content:space-between;gap:15px}.tabs{display:flex;gap:28px}.tab{border:0;background:transparent;padding:18px 2px 15px;font-weight:700;font-size:13px;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}.tab[aria-selected=true]{color:var(--teal-deep);border-bottom-color:var(--teal)}.tabnum{font:11px ui-monospace,monospace;margin-right:7px;opacity:.65}.textbutton{background:transparent;border:0;padding:8px 0;color:var(--muted);font-size:12px;display:inline-flex;align-items:center;gap:6px}.textbutton:hover{color:var(--teal)}
+main{padding-bottom:38px}.hero{display:grid;grid-template-columns:1.12fr 1fr;align-items:center;gap:36px;padding:37px 0 25px}.hero .kicker{color:var(--teal);margin-bottom:10px}.hero h1{font-size:clamp(27px,2.6vw,37px);line-height:1.5;letter-spacing:.005em;font-weight:800}.hero h1 em{font-style:normal;color:var(--teal)}.hero p{color:var(--muted);font-size:13px;margin-top:11px;line-height:1.85}.flow{display:flex;align-items:center;justify-content:flex-end;gap:13px}.flownode{flex:1;max-width:159px;border-top:2px solid #a5bfca;padding-top:14px}.flownode:last-child{border-top-color:var(--teal)}.flowlabel{font-size:10px;color:var(--subtle);letter-spacing:.08em;margin-bottom:6px}.flowtitle{font-size:14px;font-weight:750}.flowsub{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.6}.flowarrow{color:#9bb5c1;margin-top:9px}.scopebar{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--line);padding:12px 16px;border-radius:9px;background:#fff;font-size:11px;color:var(--muted);margin-bottom:22px}.scopeleft{display:flex;align-items:center;gap:8px}.scopeleft .icon{color:var(--teal);width:16px;height:16px}.scopebar strong{color:var(--ink2);font-weight:600}.scoperight{white-space:nowrap;font-size:10px;color:var(--subtle)}
+.sectioncap{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px}.sectioncap h2{font-size:13px;font-weight:750}.sectioncap .small{color:var(--muted);font-size:11px}.scenarios{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin-bottom:20px}.scenario{border:1px solid var(--line);border-radius:10px;background:white;text-align:left;padding:12px 14px;position:relative;transition:border-color .15s,box-shadow .15s;min-height:79px}.scenario:hover{border-color:#8cafae;box-shadow:var(--shadow)}.scenario[aria-pressed=true]{border:1px solid var(--teal);box-shadow:0 0 0 1px var(--teal);background:#f4faf8}.scenario-num{font-size:10px;color:var(--subtle);display:block;margin-bottom:3px}.scenario-title{font-size:12px;font-weight:750}.scenario[aria-pressed=true] .scenario-num{color:var(--teal)}.scenario[aria-pressed=true]:after{content:'✓';position:absolute;right:12px;top:9px;font-size:11px;color:var(--teal)}
+.mobile-verdict{display:none}.workgrid{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.32fr);gap:20px;align-items:start}.colstack{display:grid;gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 21px;border-bottom:1px solid #e8eef0}.cardtitle{display:flex;gap:9px;align-items:center;font-size:13px;font-weight:750}.cardtitle .icon{color:var(--muted);width:17px;height:17px}.mini-label{font-size:10px;color:var(--muted);border:1px solid #dce5e9;padding:2px 7px;border-radius:5px;white-space:nowrap}.bodypad{padding:19px 21px}.consultation{background:#f4f7f8;border-radius:10px;padding:15px 16px;font-size:14px;font-weight:650;line-height:1.85}.inputmeta{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--subtle);margin-bottom:10px;gap:10px}.factgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin-top:12px}.fact{border-bottom:1px solid #edf1f2;padding:10px 0 8px;display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:11px}.fact span{color:var(--muted)}.fact b{font-weight:700;font-size:12px}.fact .unknown{color:var(--amber)}.casehint{font-size:11px;line-height:1.75;color:var(--muted);border-left:2px solid #bfced3;padding-left:11px;margin-top:15px}.source-pill{background:var(--bg);border-radius:6px;padding:8px 10px;font-size:10px;display:flex;gap:7px;align-items:flex-start;margin-top:14px;color:var(--muted)}.source-pill .icon{width:14px;height:14px;margin-top:1px}.source-pill strong{font-weight:600;color:var(--ink2)}
+.answertext{font-size:13px;line-height:1.95;white-space:pre-line}.answertext .emphasis{background:#edf6f2;color:var(--teal-deep);padding:1px 4px;border-radius:3px;font-weight:750}.answertext .errorclaim{background:var(--red-soft);color:var(--red);padding:1px 4px;border-radius:3px;font-weight:750}.answerfoot{margin-top:16px;padding-top:12px;border-top:1px solid #edf1f2;display:flex;align-items:flex-start;gap:9px;color:var(--muted);font-size:10px;line-height:1.75}.answerfoot .icon{width:15px;height:15px;margin-top:2px}.linkbutton{border:0;background:none;color:var(--teal);font-weight:650;font-size:11px;display:inline-flex;align-items:center;gap:6px;padding:0}.answer-actions{margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.resultcard{border-top:3px solid var(--teal)}.resultcard.is-hold{border-top-color:var(--amber)}.resultcard.is-reject{border-top-color:var(--red)}.resulttop{padding:20px 23px 18px}.resultlabel{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.07em;color:var(--muted);margin-bottom:12px}.resultheadline{display:flex;align-items:center;gap:15px}.resulticon{height:48px;width:48px;border-radius:50%;background:var(--teal-soft);display:grid;place-items:center;color:var(--teal);flex-shrink:0}.resulticon .icon{height:24px;width:24px}.resultheadline h2{font-size:23px;line-height:1.45;letter-spacing:.01em}.decisioncaption{font-size:11px;color:var(--muted);margin-top:2px}.resultsummary{margin-top:14px;font-size:12px;color:var(--ink2);line-height:1.9}.resultbadge{display:inline-flex;align-items:center;gap:5px;font:700 10px ui-monospace,monospace;padding:5px 8px;border-radius:5px;background:var(--teal-soft);color:var(--teal)}.resultbadge.hold{background:var(--amber-soft);color:var(--amber)}.resultbadge.reject{background:var(--red-soft);color:var(--red)}.is-hold .resulticon{background:var(--amber-soft);color:var(--amber)}.is-reject .resulticon{background:var(--red-soft);color:var(--red)}.decision-summary{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #e8eef0;border-bottom:1px solid #e8eef0;background:#fbfcfc;padding:12px 0}.ds-item{padding:0 20px;border-right:1px solid var(--line);font-size:10px;color:var(--muted)}.ds-item:last-child{border:0}.ds-item strong{font:650 19px ui-monospace,monospace;color:var(--ink);margin-right:4px}.ds-item .metriclabel{display:block;margin-bottom:2px}.metric-tail{font-size:11px;color:var(--muted)}.checks{padding:4px 21px 6px}.checkrow{display:grid;grid-template-columns:40px 1fr 52px;gap:8px;align-items:start;padding:11px 0;border-bottom:1px solid #edf1f2}.checkrow:last-child{border:0}.checkid{font-size:10px;color:#8299a4;padding-top:1px}.checkname{font-weight:650;font-size:12px;line-height:1.55}.checkdesc{font-size:10px;color:var(--muted);line-height:1.7;margin-top:3px}.checkdesc.alert-hold{color:var(--amber)}.checkdesc.alert-reject{color:var(--red)}.checkstate{display:flex;justify-content:flex-end;align-items:center;gap:4px;font-size:10px;font-weight:700;white-space:nowrap;padding-top:2px;color:var(--teal)}.checkstate.hold{color:var(--amber)}.checkstate.reject{color:var(--red)}.checkstate .icon{width:13px;height:13px;stroke-width:2}.actionbar{padding:15px 21px;display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid #e8eef0}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:700;font-size:12px;border-radius:8px;padding:10px 16px;border:1px solid var(--line);background:#fff;color:var(--ink2);transition:background .15s;line-height:1.5;min-height:39px;white-space:nowrap}.btn:hover{background:#f4f7f8}.btn.primary{background:var(--teal);border-color:var(--teal);color:white}.btn.primary:hover{background:var(--teal-deep)}.btn.dark{background:var(--navy);color:#fff;border-color:var(--navy)}.btn.soft{background:var(--teal-soft);border-color:#cde5dc;color:var(--teal-deep)}.btn.smallbtn{font-size:11px;padding:8px 12px;min-height:35px}.btn .icon{height:15px;width:15px}.resolution{margin:0 21px 15px;padding:13px 14px;border:1px solid #ead5ab;border-radius:8px;background:var(--amber-soft);display:flex;align-items:center;justify-content:space-between;gap:14px}.resolution-text{font-size:11px;line-height:1.8;color:#755223}.resolution-text b{display:block;font-size:12px}.resolution .btn{flex-shrink:0;border-color:#d5bd90;background:#fffaf0;color:#755223}.resolution.success{background:var(--teal-soft);border-color:#c5ded3}.resolution.success .resolution-text{color:var(--teal-deep)}.gate-note{display:flex;gap:7px;padding:0 21px 16px;font-size:10px;line-height:1.8;color:var(--muted)}.gate-note .icon{width:13px;height:13px;margin-top:2px}
+.packetbar{padding:19px 21px;background:var(--navy);color:white;border-color:var(--navy);box-shadow:none}.packetbar .kicker{color:#8fbdc8;font-size:9px}.packetbar h3{font-size:16px;margin:4px 0 8px}.packetbar p{font-size:11px;color:#b9cdd5;line-height:1.8}.packet-top{display:flex;gap:12px;justify-content:space-between;align-items:start}.packet-top>.icon{width:29px;height:29px;color:#7dbeaf;margin-top:3px}.packet-bottom{margin-top:15px;padding-top:12px;border-top:1px solid #ffffff21;display:flex;justify-content:space-between;gap:12px;align-items:center}.packet-id{font-size:10px;color:#a6c4d0;word-break:break-all}.packetbar .linkbutton{color:#a6e0d3;white-space:nowrap}.methodstrip{margin-top:20px;border-left:2px solid #a7bfca;padding:3px 0 3px 14px;font-size:11px;line-height:1.9;color:var(--muted)}.methodstrip strong{color:var(--ink2)}
+.viewintro{padding:34px 0 23px;display:flex;justify-content:space-between;align-items:end;gap:22px}.viewintro .kicker{color:var(--teal);margin-bottom:7px}.viewintro h1{font-size:28px;line-height:1.5}.viewintro p{margin-top:8px;font-size:12px;color:var(--muted)}.context-tag{font-size:11px;display:flex;gap:7px;align-items:center;color:var(--muted);background:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:7px;white-space:nowrap}.evidencegrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.definition{margin:0;display:grid;grid-template-columns:100px 1fr;font-size:11px}.definition dt,.definition dd{margin:0;padding:8px 0;border-bottom:1px solid #edf1f2;line-height:1.8}.definition dt{color:var(--muted)}.definition dd{font-weight:600;overflow-wrap:anywhere}.microcaption{color:var(--subtle);font-size:10px;margin:12px 0 0}.req-list{display:grid;gap:8px;margin-top:14px}.req-item{display:grid;grid-template-columns:36px 1fr;gap:9px;font-size:11px;padding:9px 10px;background:#f6f8f9;border-radius:6px}.req-item .mono{color:var(--teal);font-size:10px}.req-item strong{display:block;font-size:11px}.req-item p{font-size:10px;color:var(--muted);margin-top:2px}.sourceitem{padding:15px 0;border-bottom:1px solid #e9eef0}.sourceitem:first-child{padding-top:0}.sourceitem:last-child{padding-bottom:0;border:0}.sourceitem h3{font-size:12px;margin:4px 0 6px}.sourceitem .source-meta{font-size:10px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}.sourceitem .source-copy{font-size:11px;line-height:1.9;background:#f6f8f9;border-radius:7px;padding:11px 13px;margin-top:10px;white-space:pre-line}.sourceitem .hashline{margin-top:8px;color:var(--subtle);font-size:9px;word-break:break-all;line-height:1.6}.tracecard{margin-top:20px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:11px;text-align:left}th{font-size:10px;color:var(--muted);font-weight:650;background:#f7f9fa}th,td{padding:12px 17px;border-bottom:1px solid #e5ecef;vertical-align:top}tr:last-child td{border-bottom:0}.trace-state{font-size:10px;font-weight:700;color:var(--teal)}.trace-state.hold{color:var(--amber)}.trace-state.reject{color:var(--red)}.trace-sub{display:block;font-size:10px;color:var(--muted);margin-top:3px}.bottomnote{font-size:10px;color:var(--muted);padding:12px 20px;border-top:1px solid #e6ecee;line-height:1.8}.packetdetail{margin-top:20px}.packet-actions{display:flex;gap:9px;flex-wrap:wrap}.packet-grid{display:grid;grid-template-columns:1.03fr .97fr;gap:25px}.jsonbox{background:#102b38;color:#c2dedf;font:10px/1.75 ui-monospace,Consolas,monospace;padding:16px 18px;border-radius:8px;overflow:auto;max-height:310px;margin:0;white-space:pre;tab-size:2}.verifier{padding:16px;border:1px solid var(--line);border-radius:9px;background:#f8fafb}.verifier h3{font-size:13px}.verifier p{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.85}.verifier .btn{margin-top:13px}.verify-output{margin-top:13px;border-top:1px solid #dde7e9;padding-top:12px;font-size:11px;line-height:1.9}.verify-line{display:flex;align-items:center;gap:8px;margin-bottom:4px}.verify-line .icon{height:14px;width:14px}.verify-line.good{color:var(--teal)}.verify-line.bad{color:var(--red)}.verify-line.neutral{color:var(--amber)}.verify-conclusion{font-weight:700;padding-top:8px;margin-top:5px;border-top:1px solid var(--line)}.tamper{margin-top:11px;display:inline-flex;font-size:10px;color:var(--muted);border:0;background:transparent;padding:0;border-bottom:1px dotted #94aab5}.expanded{margin-top:15px;border-top:1px solid var(--line);padding-top:12px}.expanded summary{font-size:11px;font-weight:650;cursor:pointer}.expanded .explanation{font-size:11px;color:var(--muted);line-height:1.95;padding-top:10px}
+.summary-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:20px}.proposal-banner{border-left:3px solid var(--teal);background:#edf6f3;padding:17px 20px;margin-bottom:18px}.proposal-banner .kicker{color:var(--teal);font-size:10px;margin-bottom:7px}.proposal-banner h2{font-size:21px;line-height:1.65}.proposal-banner p{font-size:12px;color:var(--ink2);line-height:1.95;margin-top:12px}.presscopy{font-size:12px;line-height:2;color:var(--ink2);white-space:pre-line}.pressnote{font-size:10px;color:var(--muted);margin-top:14px;padding-top:11px;border-top:1px solid var(--line)}.roles{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:17px}.role{border-top:2px solid #bbcdd3;padding-top:12px}.role h3{font-size:12px}.role p{color:var(--muted);font-size:11px;line-height:1.9;margin-top:6px}.scopeblock+.scopeblock{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}.scopeblock h3{font-size:12px;margin-bottom:5px;display:flex;align-items:center;gap:7px}.scopeblock h3 .icon{height:15px;width:15px}.scopeblock p{font-size:11px;line-height:1.9;color:var(--muted)}.testcard{margin-top:20px}.testhead{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:19px 21px;border-bottom:1px solid var(--line)}.testhead h2{font-size:15px}.testhead p{font-size:11px;color:var(--muted);margin-top:3px}.testmetrics{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:15px;padding:21px}.tm{padding-left:20px;border-left:1px solid var(--line)}.tm:first-child{border-left:0;padding-left:0}.tm .metriclabel{font-size:11px;color:var(--muted)}.tm .num{display:block;font:600 33px/1.6 ui-monospace,monospace}.tm .num small{font:12px ui-monospace,monospace;color:var(--muted)}.tm .note{font-size:10px;color:var(--subtle)}.test-summary{margin:0 21px 18px;padding:11px 14px;background:#f5f8f9;border-radius:7px;color:var(--muted);font-size:11px;line-height:1.85}.test-results{margin:0 21px 18px;border:1px solid var(--line);border-radius:8px;overflow:hidden}.test-results summary{padding:12px 15px;cursor:pointer;background:#f8fafb;font-size:12px;font-weight:650}.test-results table{min-width:570px}.test-results th,.test-results td{padding:9px 13px}.match{color:var(--teal);font-weight:700}.testmethod{padding:0 21px 20px;font-size:10px;color:var(--muted);line-height:1.9}.success-criteria{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.criterion{font-size:11px;padding:12px 14px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink2)}.criterion b{display:block;font:10px ui-monospace,monospace;color:var(--teal);margin-bottom:5px}
+.footer{margin-top:28px;border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;gap:20px;align-items:start;color:var(--subtle);font-size:10px;line-height:1.9}.footer b{font-weight:600;color:var(--muted)}.footer .mono{font-size:9px;white-space:nowrap}.toast{position:fixed;bottom:25px;left:50%;transform:translate(-50%,20px);background:var(--navy);color:white;border:1px solid #648594;border-radius:10px;padding:13px 22px;box-shadow:0 10px 40px #142e3933;font-size:12px;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 40px);width:max-content}.toast.visible{opacity:1;transform:translate(-50%,0)}dialog{border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 100px #112e3c33;padding:0;width:min(780px,calc(100% - 36px));max-height:86vh;background:#fff;color:var(--ink)}dialog::backdrop{background:#0b26377a;backdrop-filter:blur(3px)}.dialoghead{padding:18px 23px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px}.dialoghead h2{font-size:17px}.closebtn{width:30px;height:30px;border:0;background:#eff4f5;border-radius:50%;display:grid;place-items:center}.dialogbody{padding:22px 23px;overflow:auto;max-height:calc(86vh - 75px)}.history-entry{display:grid;grid-template-columns:70px 1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:11px}.history-entry:last-child{border:0}.history-entry .time{font-size:10px;color:var(--muted)}.history-entry h3{font-size:12px}.history-entry p{font-size:10px;color:var(--muted);margin-top:3px}.notice{padding:12px 15px;border-radius:8px;font-size:11px;line-height:1.9;background:#f5f8fa;color:var(--muted);margin-bottom:16px}.fatal{display:none;margin:20px;padding:16px;background:#fff0f0;border:1px solid var(--red);border-radius:10px;color:var(--red)}[hidden]{display:none!important}
+@media(min-width:1600px){.hero h1{font-size:38px}.wrap{width:min(1436px,calc(100% - 100px))}.workgrid{grid-template-columns:1fr 1.32fr}}
+@media(max-width:1150px){.wrap{width:calc(100% - 40px)}.hero{gap:20px}.hero h1{font-size:30px}.flow{gap:8px}.flowtitle{font-size:12px}.flowsub{font-size:10px}.scenarios{gap:7px}.scenario{padding:11px 9px}.scenario-title{font-size:11px}.scoperight{display:none}.workgrid{gap:15px;grid-template-columns:1fr 1.23fr}.cardhead{padding-inline:17px}.bodypad{padding-inline:17px}.resulttop{padding-inline:18px}.resultheadline h2{font-size:21px}.resulticon{width:42px;height:42px}.factgrid{gap:0 12px}.fact{font-size:10px}.fact b{font-size:11px}.ds-item{padding:0 16px}.checks{padding-inline:18px}.checkrow{grid-template-columns:32px 1fr 48px;gap:7px}.packet-bottom{align-items:flex-start;flex-direction:column;gap:8px}.packet-actions{gap:6px}.packet-actions .btn{font-size:10px;padding:8px 10px}.packet-grid{gap:17px}.topright .offline{display:none}}
+@media(max-width:850px){.brandname{font-size:13px}.brandmeta{font-size:9px}.brand{gap:11px}.topinner{height:71px}.hero{grid-template-columns:1fr;gap:19px;padding-top:27px}.hero h1{font-size:30px}.hero p{font-size:12px}.flow{justify-content:flex-start;max-width:620px}.flownode{max-width:none}.flowtitle{font-size:13px}.flowsub{font-size:11px}.hero{padding-bottom:20px}.scenarios{grid-template-columns:repeat(3,1fr)}.scenario{min-height:67px;padding:9px 13px}.scenario-title{font-size:12px}.scenario-num{margin-bottom:0}.workgrid{grid-template-columns:1fr 1.14fr;gap:12px}.cardhead{flex-wrap:wrap;gap:7px;padding:14px 15px}.cardtitle{font-size:12px}.bodypad{padding:15px}.factgrid{grid-template-columns:1fr;gap:0}.fact{padding:6px 0;font-size:11px}.fact b{font-size:11px}.consultation{font-size:12px;padding:12px}.answertext{font-size:12px;line-height:1.9}.resultheadline h2{font-size:19px}.resultheadline{gap:10px}.resulticon{width:37px;height:37px}.resulticon .icon{width:20px;height:20px}.resulttop{padding:17px 15px}.resultsummary{font-size:11px}.resultlabel{font-size:9px;letter-spacing:0}.decisioncaption{font-size:10px}.decision-summary{padding:9px 0}.ds-item{padding:0 10px;font-size:9px}.ds-item strong{font-size:16px}.checks{padding:3px 15px}.checkrow{grid-template-columns:29px 1fr 45px;gap:5px}.checkname{font-size:11px}.checkdesc{font-size:9px}.actionbar{padding:12px 15px;gap:8px}.actionbar .btn{font-size:11px;padding:9px 10px}.resolution{margin-inline:15px;display:block}.resolution .btn{margin-top:9px}.gate-note{padding-inline:15px}.evidencegrid{grid-template-columns:1fr 1fr;gap:12px}.packet-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr;gap:16px}.summary-grid>.colstack{grid-template-columns:1fr 1fr;align-items:start}.viewintro{align-items:start}.viewintro h1{font-size:25px}.viewintro{flex-direction:column;gap:13px}.viewintro .context-tag{font-size:10px}.packetdetail .cardhead{align-items:start}.packet-actions{width:100%}.offline{display:none}.footer{font-size:9px}.sourceitem .source-copy{font-size:10px}}
+@media(max-width:620px){.wrap{width:calc(100% - 30px)}.topinner{height:71px;gap:8px}.brandmark{width:29px;height:32px;border-radius:8px}.brandmark .icon{width:20px;height:20px}.brandname{font-size:11px}.brandmeta{font-size:8px;letter-spacing:.05em}.brand{gap:9px}.prototype{font-size:8px;padding:4px 6px}.topright{gap:0}.navinner{gap:3px}.tabs{gap:18px}.tab{font-size:11px;padding:15px 0 12px}.tabnum{font-size:9px;margin-right:4px}.navinner>.textbutton{font-size:0;gap:0}.navinner>.textbutton .icon{width:16px;height:16px}.hero{padding-top:25px}.hero h1{font-size:27px}.hero .kicker{font-size:9px}.hero p{font-size:11px}.hero p br{display:none}.flow{gap:6px}.flowarrow .icon{width:13px}.flowtitle{font-size:11px}.flowlabel{font-size:8px}.flowsub{font-size:9px}.flownode{padding-top:10px}.scopebar{padding:10px 11px;align-items:start;font-size:10px;margin-bottom:17px}.scopeleft{align-items:flex-start;line-height:1.8;gap:6px}.scopeleft .icon{margin-top:2px;width:14px;height:14px;flex-shrink:0}.sectioncap .small{font-size:9px}.sectioncap h2{font-size:12px}.scenarios{gap:7px;margin-bottom:16px}.scenario{padding:9px 10px;min-height:66px}.scenario-title{font-size:10px}.scenario-num{font-size:9px}.scenario[aria-pressed=true]:after{right:8px;top:7px}.workgrid{grid-template-columns:1fr;gap:16px}.colstack{gap:14px}.cardhead{padding:15px 17px;flex-wrap:nowrap}.cardtitle{font-size:12px}.bodypad{padding:16px 17px}.factgrid{grid-template-columns:1fr 1fr;gap:0 15px}.fact{font-size:10px;padding:9px 0}.fact b{font-size:11px}.consultation{font-size:13px;line-height:1.85}.answertext{font-size:12px;line-height:1.95}.resultheadline h2{font-size:22px}.resulticon{height:43px;width:43px}.resultheadline{gap:12px}.resulttop{padding:18px}.resultsummary{font-size:12px}.resultlabel{font-size:10px}.decisioncaption{font-size:11px}.ds-item{padding:0 17px;font-size:10px}.ds-item strong{font-size:19px}.checks{padding:3px 17px}.checkrow{grid-template-columns:32px 1fr 49px;gap:8px}.checkname{font-size:12px}.checkdesc{font-size:10px}.actionbar{padding:14px 17px}.actionbar .btn{font-size:11px;padding:10px 12px}.resolution{margin-inline:17px}.packet-bottom{flex-direction:row;align-items:center}.packet-id{font-size:9px}.methodstrip{font-size:10px}.viewintro{padding-top:26px}.viewintro h1{font-size:23px}.viewintro p{font-size:11px}.evidencegrid{grid-template-columns:1fr}.tracecard,.packetdetail,.testcard{margin-top:16px}.tracecard table{min-width:620px}.packetdetail .cardhead{flex-wrap:wrap;gap:12px}.packet-actions{gap:6px}.packet-actions .btn{font-size:10px;padding:8px 9px}.summary-grid>.colstack{grid-template-columns:1fr}.proposal-banner{padding:15px}.proposal-banner h2{font-size:18px}.proposal-banner p{font-size:11px}.presscopy{font-size:11px}.roles{gap:12px}.role h3{font-size:11px}.role p{font-size:10px}.testhead{padding:17px;align-items:start;flex-direction:column;gap:13px}.testhead h2{font-size:14px}.testhead p{font-size:10px}.testmetrics{padding:17px;grid-template-columns:repeat(2,1fr);gap:18px}.tm{padding-left:17px}.tm:nth-child(3){padding-left:0;border:0}.tm .num{font-size:30px}.tm .metriclabel{font-size:10px}.test-summary{margin:0 17px 16px;font-size:10px}.test-results{margin-inline:17px}.testmethod{padding-inline:17px}.success-criteria{grid-template-columns:1fr;gap:8px}.criterion{font-size:11px}.criterion b{display:inline;margin-right:8px}.footer{flex-direction:column;gap:8px;margin-top:23px}.footer .mono{font-size:9px}.toast{font-size:11px;padding:12px 16px}.dialoghead{padding:16px 18px}.dialogbody{padding:17px 18px}.history-entry{grid-template-columns:53px 1fr auto;gap:9px}.packetbar{padding:18px}.mini-label{font-size:9px}}
+@media(max-width:620px){.brand>div{min-width:0}.brandmeta{font-size:7px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobile-verdict{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin:0 0 15px;padding:11px 13px;border:1px solid #c5ded3;border-radius:9px;background:var(--teal-soft);color:var(--teal-deep);text-align:left;font-size:11px;font-weight:700}.mobile-verdict.hold{background:var(--amber-soft);color:var(--amber);border-color:#e5d3ae}.mobile-verdict.reject{background:var(--red-soft);color:var(--red);border-color:#e7cbd0}.mobile-verdict .mobile-jump{font-size:10px;font-weight:500;white-space:nowrap}.mobile-verdict span:first-child{display:flex;gap:7px;align-items:center}.mobile-verdict .icon{height:15px;width:15px}}
+@media print{.mobile-verdict{display:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{body{background:#fff;font-size:11px}.wrap{width:100%;max-width:none}.topbar{background:#fff;color:#142f3d;border-bottom:2px solid #142f3d}.brandmeta,.prototype,.brandmark{color:#526e7a}.navrow,.topright,.scenarios,.actionbar,.resolution,.packet-actions,.btn,.textbutton,.linkbutton,.tamper,.toast,dialog,.sectioncap,.success-criteria{display:none!important}main{padding:0}.hero{padding:20px 0}.hero h1{font-size:25px}.flow{display:none}.hero{grid-template-columns:1fr}.workgrid{grid-template-columns:1fr 1.25fr}.card{box-shadow:none;break-inside:avoid}.cardhead,.bodypad{padding:12px}.resulttop{padding:12px}.resultheadline h2{font-size:19px}.checks{padding:0 12px}.checkrow{padding:7px 0}.resultsummary{font-size:10px}.checkdesc{font-size:9px}.packetbar{background:#f1f5f7;color:#142f3d}.packetbar p,.packet-id,.packetbar .kicker{color:#526e7a}.footer{font-size:8px}.viewintro{padding:20px 0}.packet-grid{grid-template-columns:1fr}.verifier{display:none}.jsonbox{color:#142f3d;background:#f3f6f7;white-space:pre-wrap;max-height:none}.summary-grid{grid-template-columns:1fr 1fr}.testmetrics{padding:12px}.test-results{display:none}.cardtitle{font-size:11px}.scopebar{font-size:9px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">メインコンテンツへ</a>
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.2 3.2 7.2 7.5 9.5 4.3-2.3 7.5-5.3 7.5-9.5V6L12 3Z"/><path d="m8.5 11.5 2.5 2.5 4.5-5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H5v18h14V8l-5-5Z"/><path d="M14 3v5h5M8 12h8M8 16h6"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-replay" viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 1.4 5.5M4 4v7h7"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 15v6h16v-6"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 16v5h16v-5"/></symbol>
+<symbol id="i-history" viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 1.4 5.5M4 4v7h7M12 7v5l3 2"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="m9 15 6-6M8 17l-1 1a4.2 4.2 0 0 1-6-6l5-5a4.2 4.2 0 0 1 6 0m0 10a4.2 4.2 0 0 0 6 0l5-5a4.2 4.2 0 0 0-6-6l-1 1" transform="translate(1 0) scale(.92)"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v.5"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H4v13h4"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8V4Z"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+</defs></svg>
+<header class="topbar"><div class="wrap topinner"><div class="brand"><span class="brandmark"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span><div><div class="brandname">AIアシュアランス <span style="font-weight:400;color:#8eaab7;margin:0 6px">×</span> クラウドシエン</div><div class="brandmeta">PUBLIC SECTOR · ANSWER ADOPTION ASSURANCE</div></div></div><div class="topright"><span class="offline"><span class="dot"></span>このHTMLからの外部通信なし</span><span class="prototype">PoC DESIGN / 提案用</span></div></div></header>
+<div class="navrow"><div class="wrap navinner"><nav class="tabs" role="tablist" aria-label="デモの表示内容"><button type="button" class="tab" role="tab" id="tab-demo" aria-controls="view-demo" aria-selected="true" tabindex="0" data-view="demo"><span class="tabnum">01</span>回答を確認</button><button type="button" class="tab" role="tab" id="tab-evidence" aria-controls="view-evidence" aria-selected="false" tabindex="-1" data-view="evidence"><span class="tabnum">02</span>要求と証拠</button><button type="button" class="tab" role="tab" id="tab-public" aria-controls="view-public" aria-selected="false" tabindex="-1" data-view="public"><span class="tabnum">03</span>公開用サマリー</button></nav><button type="button" class="textbutton" id="history-button" aria-label="このセッションの検証履歴を表示"><svg class="icon" aria-hidden="true"><use href="#i-history"/></svg>検証履歴 <span class="mono" id="history-count">0</span></button></div></div>
+<noscript><div style="padding:25px;background:#fff1da;color:#78521e">このHTMLの操作にはJavaScriptが必要です。JavaScriptを有効にしたブラウザで開いてください。画面は実証前の提案用デモです。</div></noscript>
+<div id="fatal" class="fatal" role="alert"></div>
+<main class="wrap" id="main">
+<section id="view-demo" role="tabpanel" aria-labelledby="tab-demo">
+<div class="hero"><div><div class="kicker">FIRST PoC — 制度・補助金案内</div><h1>そのAI回答を、<br><em>行政業務で使ってよいか。</em></h1><p>「もっともらしい回答」から、「採用条件と根拠が見える回答案」へ。<br>業務要求パケット × 責任情報パケットで、確認と再検証をつなぎます。</p></div><div class="flow" aria-label="業務要求パケットから採用判定、責任情報パケットへの流れ"><div class="flownode"><div class="flowlabel mono">01 / REQUIREMENTS</div><div class="flowtitle">業務要求パケット</div><div class="flowsub">使ってよい条件を定義<br>対象・時点・根拠・利用範囲</div></div><span class="flowarrow"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></span><div class="flownode"><div class="flowlabel mono">02 / DECISION GATE</div><div class="flowtitle">回答案の採用判定</div><div class="flowsub">採用可 / 職員確認 / 不採用<br>条件不足なら止める</div></div><span class="flowarrow"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></span><div class="flownode"><div class="flowlabel mono">03 / EVIDENCE</div><div class="flowtitle">責任情報パケット</div><div class="flowsub">何を確認したかを記録<br>要求・主張・証拠・判定を結合</div></div></div></div>
+<div class="scopebar"><div class="scopeleft"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span><strong>公開制度情報 × 架空相談者を想定した完成イメージ。</strong> この画面の制度・資料・相談者はすべて架空。実データ・生成AI・行政システムには未接続です。</span></div><span class="scoperight mono">DEMO RULESET 1.0</span></div>
+<div class="sectioncap"><h2>確認したいケースを選ぶ</h2><span class="small">6つの代表ケース · 切替時にブラウザ内で再判定</span></div>
+<div class="scenarios" id="scenario-list" aria-label="代表ケース"></div>
+<button type="button" class="mobile-verdict" id="mobile-verdict" aria-label="現在の判定と条件検査の内訳へ移動"><span id="mobile-status">確認中</span><span class="mobile-jump">判定の内訳 ↓</span></button>
+<div class="workgrid">
+<div class="colstack">
+<article class="card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>相談内容と確認条件</h2><span class="mini-label">合成データのみ</span></div><div class="bodypad"><div class="inputmeta"><span id="consultant-label">架空の相談者 A</span><span class="mono" id="case-id">CASE-01</span></div><div class="consultation" id="question"></div><div class="factgrid" id="fact-grid"></div><p class="casehint" id="case-hint"></p><div class="source-pill"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg><span><strong id="program-label"></strong><br><span id="reference-date"></span></span></div></div></article>
+<article class="card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>検証する回答候補</h2><span class="mini-label">固定テンプレート / AI未接続</span></div><div class="bodypad"><div class="answertext" id="answer-text"></div><div class="answer-actions"><button type="button" class="linkbutton" id="trace-button"><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg>この回答の主張と根拠を見る</button><span class="mono small muted" id="claim-count"></span></div><div class="answerfoot"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span>このデモは、構造化済みの主張・条件・参照の照合を行います。自然文全体の正しさや、情報源そのものの真正性を証明するものではありません。</span></div></div></article>
+<div class="card packetbar"><div class="packet-top"><div><div class="kicker">RESPONSIBILITY INFORMATION PACKET</div><h3>判断だけでなく、判断の根拠を残す。</h3><p>要求の版、回答中の主張、参照資料、各条件の検査結果、未確認事項を、一つの検証記録にまとめます。</p></div><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg></div><div class="packet-bottom"><span class="packet-id mono" id="packet-short">パケットを準備中</span><button type="button" class="linkbutton" id="packet-button">責任情報パケットを見る<svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button></div></div>
+</div>
+<div class="colstack">
+<article class="card resultcard" id="result-card"><div class="resulttop"><div class="resultlabel"><span>業務要求パケットによる採用ゲート</span><span class="resultbadge" id="decision-badge">検証準備中</span></div><div class="resultheadline"><span class="resulticon" id="decision-icon"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></span><div><h2 id="decision-title">回答案を確認しています</h2><p class="decisioncaption" id="decision-caption">この画面内の条件検査</p></div></div><p class="resultsummary" id="decision-summary">同梱のサンプルデータとルールを読み込んでいます。</p></div><div class="decision-summary"><div class="ds-item"><span class="metriclabel">条件検査の通過数</span><strong id="metric-passed">—</strong><span class="metric-tail">/ 8</span></div><div class="ds-item"><span class="metriclabel">主張に対応する資料</span><strong id="metric-sources">—</strong><span class="metric-tail">件</span></div><div class="ds-item"><span class="metriclabel">未確認・不整合</span><strong id="metric-issues">—</strong><span class="metric-tail">条件</span></div></div><div class="checks" id="checks"></div><div class="resolution" id="resolution" hidden></div><div class="actionbar"><button type="button" class="btn primary" id="run-button" disabled><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg>採用条件を再検証</button><button type="button" class="btn" id="save-main" disabled><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>検証記録を保存</button></div><p class="gate-note"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span><strong>採用可は「職員が確認する回答案」としての判定です。</strong>補助金の受給・採択を決定せず、住民への自動送信も行いません。</span></p></article>
+</div>
+</div>
+<p class="methodstrip"><strong>この第一弾で示すこと：</strong>「条件を満たす回答案は進める」「根拠不足・不整合なら止める」「なぜそう判断したかを同じルールで再確認できる」。実証では、自治体の公開資料から抽出した条件・主張を確認する工程が別途必要です。</p>
+</section>
+<section id="view-evidence" role="tabpanel" aria-labelledby="tab-evidence" hidden>
+<div class="viewintro"><div><div class="kicker">REQUIREMENTS → CLAIMS → EVIDENCE</div><h1>要求と証拠を、ひも付けて確認する。</h1><p>どの条件を、どの資料・どの主張について検査したか。判定の内訳と再検証用データを確認できます。</p></div><span class="context-tag"><span class="dot"></span><span id="evidence-context">選択中のケース</span></span></div>
+<div class="evidencegrid">
+<article class="card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>業務要求パケット</h2><span class="mini-label mono">BRP-DEMO-01 / v1.0</span></div><div class="bodypad"><dl class="definition"><dt>対象業務</dt><dd>制度・補助金の案内回答案を、職員の確認用に採用する</dd><dt>対象制度</dt><dd>自治体X / デジタル活用支援（架空）</dd><dt>データの範囲</dt><dd>公開相当のサンプル資料＋合成相談者データのみ</dd><dt>判定方針</dt><dd>不整合あり → REJECT ／ 不足のみ → HOLD ／ 全通過 → PASS</dd><dt>許される操作</dt><dd>回答案・検証記録の表示とローカル保存。行政上の決定や対外送信は行わない</dd></dl><div class="req-list" id="requirement-list"></div><p class="microcaption mono" id="policy-hash" style="overflow-wrap:anywhere"></p></div></article>
+<article class="card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg>参照資料のスナップショット</h2><span class="mini-label">架空資料 / 外部参照なし</span></div><div class="bodypad"><div class="notice">実証では自治体の公開資料を使用します。ここでは、出典表示・版管理・主張との対応を試すための架空資料を同梱しています。</div><div id="source-list"></div></div></article>
+</div>
+<article class="card tracecard" id="trace-card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg>回答中の主張 × 根拠資料 × 確認範囲</h2><span class="mini-label">構造化済みの主張を照合</span></div><div class="tablewrap"><table><thead><tr><th style="width:21%">回答中の主張</th><th style="width:24%">参照・確認対象</th><th style="width:36%">確認内容 / 未確認事項</th><th style="width:19%">照合結果</th></tr></thead><tbody id="trace-body"></tbody></table></div><div class="bottomnote">相談者の属性は合成シナリオ上の入力であり、実住民の事実確認ではありません。「案内上の対象候補」と、行政が審査して決定する「受給資格」は区別します。</div></article>
+<article class="card packetdetail" id="packet-detail"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>責任情報パケットと再検証</h2><div class="packet-actions"><button type="button" class="btn smallbtn" id="save-packet" disabled><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>JSONを保存</button><button type="button" class="btn smallbtn" id="load-packet"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg>JSONを読み込む</button><input type="file" id="packet-file" accept=".json,application/json" hidden></div></div><div class="bodypad"><div class="packet-grid"><div><p class="small muted" style="margin-bottom:10px">現在の判定記録（表示は抜粋。保存時は入力・ルール・資料も含みます）</p><pre class="jsonbox" id="packet-json" tabindex="0" aria-label="責任情報パケットのJSON抜粋">準備中</pre><p class="microcaption">SHA-256で内容を照合。電子署名・時刻認証・第三者認証は付与していません。保存データには架空サンプルのみを含みます。</p></div><div><div class="verifier"><h3>同じ要求と証拠で、判定を再現する</h3><p>保存したJSONを別のブラウザでもこのHTMLに読み込み、同梱ルールで再検査できます。内容の一致、ルールの版、判定の再現を分けて確認します。</p><button type="button" class="btn primary smallbtn" id="verify-packet" disabled><svg class="icon" aria-hidden="true"><use href="#i-replay"/></svg>現在のパケットを再検証</button><div class="verify-output" id="verify-output" aria-live="polite"><span class="muted">まだ再検証していません。</span></div><button type="button" class="tamper" id="tamper-button" disabled>サンプルの一部を変更し、照合が失敗することを確認</button></div><p class="microcaption">再現できた判定がHOLDやREJECTの場合、採用可には変わりません。ここでの再検証は、同一の公開デモルールを再実行する機能です。</p></div></div><details class="expanded"><summary>検証対象と、保証していない範囲</summary><div class="explanation"><strong>検査対象：</strong>構造化済みの要求・主張の照合、同梱の採用対象資料との内容一致、必須条件の充足、データ区分・処理設定の確認、記録の再実行です。回答文は構造化された主張から固定テンプレートで表示しています。<br><strong>対象外：</strong>実在制度への適合、自然言語からの完全・正確な条件抽出、実相談者の属性確認、法的適合性全般、実サービスの個人情報保護、全処理経路の強制的な実行制御、形式証明の検証です。実証環境ではこれらの役割・境界を別途定義します。<br><strong>内容照合の限界：</strong>このファイルにはデモ用の採用対象資料とルールを同梱しています。ハッシュ値だけでは発行主体を認証できず、データとハッシュを同時に作り直す攻撃を防げません。運用環境では、信頼する資料・ルールの取得方法、署名や権限管理などを別途設計する必要があります。</div></details></div></article>
+</section>
+<section id="view-public" role="tabpanel" aria-labelledby="tab-public" hidden>
+<div class="viewintro"><div><div class="kicker">PHASE 01 ONLY / PUBLIC COMMUNICATION</div><h1>第一弾PoCとして、何を見せるか。</h1><p>公開制度情報と架空相談者だけで、採用条件・根拠・再検証を示す。実証前の構想と、実行したデモ結果を混同しません。</p></div><span class="context-tag">公表範囲・社名使用は両社確認前の案</span></div>
+<div class="summary-grid"><article class="card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg>対外説明の完成イメージ</h2><span class="mini-label">見出し・本文案 / 未発表</span></div><div class="bodypad"><div class="proposal-banner"><div class="kicker">提案する見出し</div><h2>AIの回答を「採用できる条件」と<br>「根拠」まで確認する自治体PoCへ</h2><p>制度・補助金の公開情報を入口に、業務要求パケットと責任情報パケットを接続。</p></div><div class="presscopy" id="press-copy">本PoC案は、公開されている制度・補助金情報と架空の相談者データを対象に、AIの回答案について、対象自治体、情報の版・時点、案内条件、根拠との対応を確認するものです。
+
+業務要求パケットで回答案の採用条件を定義し、採用可・職員確認・不採用を理由付きで整理。その根拠、検査結果、未確認事項を責任情報パケットとして記録し、同じ要求と証拠に基づく判定の再検証を目指します。
+
+実住民情報や自治体の非公開情報は使用せず、行政上の受給・採択決定や住民への自動送信も対象に含めません。</div><div class="pressnote">これは共同PoCの提案用文案です。実証済み・導入済み・第三者認証取得を表すものではありません。</div><button type="button" class="linkbutton" id="copy-press" style="margin-top:12px"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>この説明文案をコピー</button><div class="roles"><div class="role"><h3>クラウドシエン / 役割案</h3><p>対象業務・公開資料の選定、職員の確認フローや実証条件の整理。</p></div><div class="role"><h3>AIアシュアランス / 役割案</h3><p>要求条件・検査仕様の設計、責任情報パケットの生成・再検証。</p></div></div></div></article><div class="colstack"><article class="card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>公開範囲の線引き</h2></div><div class="bodypad"><div class="scopeblock"><h3 style="color:var(--teal)"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>公表候補</h3><p>PoCの構成、架空ケース、採用条件、判定と根拠の対応、検証範囲、実測後の集計結果、公開用の責任情報パケット。</p></div><div class="scopeblock"><h3><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>使用・公開しない</h3><p>実住民情報、非公開の庁内規程、接続・認証情報、特許技術の中核実装。未承諾の自治体名・顧客名も出さない設計です。</p></div><div class="scopeblock"><h3 style="color:var(--amber)"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>このデモからは主張しない</h3><p>実在制度への適合、回答全般の正確性、業務時間の削減効果、法令への包括適合、個人情報保護の完全保証。</p></div></div></article><article class="card"><div class="cardhead"><h2 class="cardtitle"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>最小の実証構成案</h2></div><div class="bodypad"><dl class="definition"><dt>対象</dt><dd>1自治体・1制度の公開案内</dd><dt>相談者</dt><dd>個人を特定しない合成ケース</dd><dt>検査</dt><dd>通過・不足・不整合を含む30ケース</dd><dt>成果物</dt><dd>要求仕様、ケース表、判定記録、再検証可能な公開用サンプル</dd><dt>接続範囲</dt><dd>基幹接続なし。実証時の生成AI接続は別途設計</dd></dl></div></article></div></div>
+<article class="card testcard"><div class="testhead"><div><h2>30ケースの参考テストを、その場で実行する</h2><p>合成データで、あらかじめ定義した期待判定とデモルールの結果を比較します。</p></div><button type="button" class="btn dark" id="batch-button" disabled><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg>参考テストを実行</button></div><div class="testmetrics"><div class="tm"><span class="metriclabel">期待判定との一致</span><span class="num" id="batch-match">— <small>/ 30</small></span><span class="note">未実行 · 実証値ではありません</span></div><div class="tm"><span class="metriclabel">PASS / 回答案として採用可</span><span class="num" id="batch-pass">—</span><span class="note">条件検査をすべて通過</span></div><div class="tm"><span class="metriclabel">HOLD / 職員による追加確認</span><span class="num" id="batch-hold">—</span><span class="note">根拠・入力が不足</span></div><div class="tm"><span class="metriclabel">REJECT / 回答案を不採用</span><span class="num" id="batch-reject">—</span><span class="note">不整合・禁止条件あり</span></div></div><div class="test-summary" id="batch-summary" aria-live="polite">この数値は実行するまで表示しません。テストはブラウザ内で完結し、生成AIの精度や現場での効果を測定するものではありません。</div><details class="test-results" id="batch-details" hidden><summary>全30件のケース・期待判定・実際の判定を確認</summary><div class="tablewrap"><table><thead><tr><th>ID</th><th>確認するケース</th><th>期待</th><th>実際</th><th>一致</th></tr></thead><tbody id="batch-body"></tbody></table></div></details><div class="testmethod"><strong>測定上の位置付け：</strong>事前に定義した正常系・境界値・不足・禁止条件を検査する、ルールレベルの参考テストです。期待判定との一致率を「回答精度」や「事故防止率」として公表しません。実証結果を発表する際は、対象資料、確認済みの抽出条件、テストケース、検査仕様、実施日、未検証範囲を併記します。</div></article>
+<div class="success-criteria"><div class="criterion"><b>SUCCESS 01</b>不足・不整合を区別して止められる</div><div class="criterion"><b>SUCCESS 02</b>追加確認すべき条件が具体的に分かる</div><div class="criterion"><b>SUCCESS 03</b>同じ要求・証拠で判定を再現できる</div></div>
+</section>
+<footer class="footer"><div><b>自治体AI 回答採用アシュアランス — 第一弾PoC 完成イメージ</b><br>株式会社AIアシュアランス × クラウドシエンの協業検討用。画面内の制度・自治体・資料・相談者は架空です。結果はデモルールの実行結果であり、実証実績ではありません。</div><div class="mono">SINGLE-FILE / OFFLINE DEMO<br>DESIGN VERSION 1.0 · 2026-10</div></footer>
+</main>
+<dialog id="history-dialog" aria-labelledby="history-title"><div class="dialoghead"><h2 id="history-title">このセッションの検証履歴</h2><button type="button" class="closebtn" data-close="history-dialog" aria-label="閉じる"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div><div class="dialogbody"><div class="notice">このHTMLを開いている間の操作記録です。ページを閉じると消えます。相談条件の補完前・補完後の判定を分けて残します。</div><div id="history-list"></div></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* Single-file illustrative PoC. No network calls, storage, remote AI or proof checker.
+   All institutions, records and sources below are synthetic. The rule evaluator only
+   checks typed claims, prescribed conditions and local reference snapshots. */
+const $ = (id) => document.getElementById(id);
+const clone = (v) => JSON.parse(JSON.stringify(v));
+const escapeHTML = (v) => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+const canonical = (v) => {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v);
+  if (Array.isArray(v)) return '[' + v.map(canonical).join(',') + ']';
+  return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canonical(v[k])).join(',') + '}';
+};
+/* Portable SHA-256 fallback for browsers without crypto.subtle on file URLs. */
+function sha256Fallback(str) {
+ const bytes=new TextEncoder().encode(str), bitLength=bytes.length*8;
+ const len=Math.ceil((bytes.length+9)/64)*64, msg=new Uint8Array(len); msg.set(bytes); msg[bytes.length]=128;
+ const dv=new DataView(msg.buffer); dv.setUint32(len-8,Math.floor(bitLength/4294967296));dv.setUint32(len-4,bitLength>>>0);
+ const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+ let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];const W=new Uint32Array(64),R=(x,n)=>(x>>>n)|(x<<(32-n));
+ for(let off=0;off<len;off+=64){for(let i=0;i<16;i++)W[i]=dv.getUint32(off+i*4);for(let i=16;i<64;i++){let s0=R(W[i-15],7)^R(W[i-15],18)^(W[i-15]>>>3),s1=R(W[i-2],17)^R(W[i-2],19)^(W[i-2]>>>10);W[i]=(W[i-16]+s0+W[i-7]+s1)>>>0;}let [a,b,c,d,e,f,g,h]=H;for(let i=0;i<64;i++){let S1=R(e,6)^R(e,11)^R(e,25),ch=(e&f)^(~e&g),t1=(h+S1+ch+K[i]+W[i])>>>0,S0=R(a,2)^R(a,13)^R(a,22),maj=(a&b)^(a&c)^(b&c),t2=(S0+maj)>>>0;h=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;}H=H.map((v,i)=>(v+[a,b,c,d,e,f,g,h][i])>>>0);}
+ return H.map(v=>v.toString(16).padStart(8,'0')).join('');
+}
+async function hash(v) {const str=typeof v==='string'?v:canonical(v);if(globalThis.crypto?.subtle){const a=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(a),x=>x.toString(16).padStart(2,'0')).join('');}return sha256Fallback(str);}
+const POLICY={
+ id:'BRP-DEMO-01',version:'1.0',schema:'civic-answer-adoption-demo/1.0',
+ target:{municipality:'自治体X',program_id:'DEMO-DX-2026'},
+ allowed_data:'public_sample_and_synthetic',permitted_use:'staff_answer_draft',
+ source_catalog:'SYNTHETIC-CATALOG-2026-10',
+ decision_order:['REJECT','HOLD','PASS'],
+ criteria:[
+ {id:'R01',name:'対象自治体・制度の一致',description:'回答・参照資料が、依頼された自治体と制度を指しているか。'},
+ {id:'R02',name:'資料の版・募集期間',description:'採用対象の版と固定基準日に照らして、資料・案内期間が有効か。'},
+ {id:'R03',name:'相談条件と案内の対応',description:'事業所、従業員数、滞納、重複利用の既知・未知を区別する。'},
+ {id:'R04',name:'回答中の主張と根拠',description:'自治体・金額・補助率・期限・対象候補の主張を、資料中の項目に対応付ける。'},
+ {id:'R05',name:'必須条件・断定の抑制',description:'必須の注意条件を記載し、採択・受給を確定したように表現しない。'},
+ {id:'R06',name:'データ区分・処理設定',description:'同梱の架空サンプルと合成データだけを使う構成か。実データ判定は対象外。'},
+ {id:'R07',name:'利用範囲・人間による確定',description:'職員の回答案確認に限定し、対外自動送信や自動決定を許可しない。'},
+ {id:'R08',name:'主張・資料・記録の同一性',description:'同梱資料の内容、主張が参照する内容識別値、表示文と構造化主張を照合する。'}
+ ],
+ mandatory_conditions:['establishment','employees','tax','duplicate','human_decision'],
+ gate_semantics:'All criteria PASS -> staff draft only. Any REJECT overrides HOLD. No administrative decision or external transmission.',
+ exclusions:['legal_compliance','source_authenticity','real_applicant_facts','general_natural_language_correctness','formal_proof_checking','production_privacy_assurance']
+};
+const SOURCE_CATALOG=[{
+ id:'SRC-01',title:'自治体X 小規模事業者デジタル活用支援補助金 募集要領（架空）',version:'1.2',year:2026,
+ municipality:'自治体X',program_id:'DEMO-DX-2026',published_at:'2026-09-01',valid_from:'2026-09-01',valid_to:'2026-10-31',classification:'public_sample',
+ facts:{municipality:'自治体X',program_id:'DEMO-DX-2026',employee_limit:20,max_yen:300000,rate:0.5,deadline:'2026-10-31',establishment_required:true,tax_arrears_allowed:false,duplicate_allowed:false},
+ sections:{scope:'§1 対象地域・制度',eligibility:'§2 対象事業者',amount:'§3 補助率・上限',period:'§4 受付期間'},
+ text:'【架空のデモ資料】\n§1 自治体Xに事業所を有する小規模事業者のデジタル活用を支援する。\n§2 常用従業員20人以下、市税の滞納がないこと、同じ経費で他制度の補助を受けていないこと。\n§3 補助率は対象経費の1/2、上限30万円。\n§4 申請受付は2026年9月1日から2026年10月31日まで。'
+},{
+ id:'SRC-02',title:'申請・案内時の確認事項（架空）',version:'1.0',year:2026,
+ municipality:'自治体X',program_id:'DEMO-DX-2026',published_at:'2026-09-01',valid_from:'2026-09-01',valid_to:'2026-10-31',classification:'public_sample',
+ facts:{mandatory_conditions:['establishment','employees','tax','duplicate','human_decision'],award_guarantee:false,final_decision:'human_administrative_review'},
+ sections:{conditions:'§1 案内に含める確認条件',review:'§2 審査・決定'},
+ text:'【架空のデモ資料】\n§1 案内には、市内事業所・従業員数・市税滞納・同一経費への重複補助を確認条件として明記する。\n§2 申請可能性の案内は交付・採択の決定ではない。正式な申請・審査を経て自治体が判断する。回答案の対外使用には職員の確認が必要。'
+}];
+const CLAIM_META={
+ municipality:{label:'案内する自治体',source:'SRC-01',section:'scope'},
+ max_yen:{label:'補助上限額',source:'SRC-01',section:'amount'},
+ rate:{label:'補助率',source:'SRC-01',section:'amount'},
+ deadline:{label:'申請期限',source:'SRC-01',section:'period'},
+ eligibility:{label:'案内上の対象候補',source:'SRC-01',section:'eligibility'},
+ conditions:{label:'必須条件・注意事項',source:'SRC-02',section:'conditions'},
+ award_guarantee:{label:'採択・受給を断定しない',source:'SRC-02',section:'review'}
+};
+let CATALOG_HASHES={}, POLICY_HASH='';
+function formatDate(str){return String(str).replace(/-/g,'/');}
+function dateJP(str){const p=String(str).split('-');return p.length===3?`${p[0]}年${Number(p[1])}月${Number(p[2])}日`:String(str);}
+function valueLabel(key,value){
+ if(key==='max_yen')return `${(value/10000).toLocaleString('ja-JP')}万円`;
+ if(key==='rate')return value===0.5?'1/2':`${value*100}%`;
+ if(key==='deadline')return dateJP(value);
+ if(key==='eligibility')return {candidate:'案内上の対象候補',out_of_scope:'今回の条件では対象外',needs_review:'条件が未確認'}[value]||String(value);
+ if(key==='conditions')return Array.isArray(value)?`${value.length}項目を明示`:'不明';
+ if(key==='award_guarantee')return value?'受給・採択を断定':'正式な申請・審査が必要';
+ return String(value);
+}
+function getEligibility(app){
+ const keys=['establishment','employees','tax_arrears','duplicate'];
+ const knownFail=app.establishment===false||(typeof app.employees==='number'&&app.employees>20)||app.tax_arrears===true||app.duplicate===true;
+ if(knownFail)return 'out_of_scope';
+ if(keys.some(k=>app[k]===null||app[k]===undefined))return 'needs_review';
+ return 'candidate';
+}
+function buildText(claims){
+ const v=k=>claims[k]?.value;
+ const loc=v('municipality');
+ let intro=v('eligibility')==='out_of_scope'?`ご相談の条件では、${loc}の「デジタル活用支援補助金」の対象条件を満たさない項目があります。`:
+ v('eligibility')==='needs_review'?`${loc}の「デジタル活用支援補助金」を案内するには、未確認の相談条件を補う必要があります。`:
+ `${loc}の「デジタル活用支援補助金」の対象候補です。`;
+ const amounts=`補助率は${valueLabel('rate',v('rate'))}、上限は${valueLabel('max_yen',v('max_yen'))}です。申請期限は${dateJP(v('deadline'))}です。`;
+ const labels={establishment:'自治体内の事業所',employees:'常用従業員20人以下',tax:'市税の滞納がないこと',duplicate:'同じ経費での重複補助がないこと'};
+ const arr=Array.isArray(v('conditions'))?v('conditions'):[];
+ const conditions=arr.filter(x=>labels[x]).map(x=>labels[x]).join('、');
+ const last=v('award_guarantee')?'この条件なら補助金の受給・採択が確定します。':arr.includes('human_decision')?'これは制度案内であり、受給・採択の決定ではありません。正式な申請・審査と、職員による回答確認が必要です。':'';
+ return [intro,amounts,conditions?`確認条件：${conditions}。`:'',last].filter(Boolean).join('\n\n');
+}
+function baseInput(){
+ const values={municipality:'自治体X',max_yen:300000,rate:0.5,deadline:'2026-10-31',eligibility:'candidate',conditions:[...POLICY.mandatory_conditions],award_guarantee:false};
+ const claims=Object.fromEntries(Object.entries(values).map(([key,value])=>[key,{value,source_id:CLAIM_META[key].source,section:CLAIM_META[key].section,source_hash:CATALOG_HASHES[CLAIM_META[key].source]}]));
+ return {id:'CASE-01',label:'通常の案内',as_of:'2026-10-01',target:clone(POLICY.target),
+ applicant:{id:'SYNTHETIC-A',label:'架空の相談者 A',synthetic:true,establishment:true,employees:8,tax_arrears:false,duplicate:false},
+ source_ids:['SRC-01','SRC-02'],sources:clone(SOURCE_CATALOG),
+ data_policy:{classification:'public_sample_and_synthetic',template_only:true,network:'none'},
+ workflow:{use:'staff_answer_draft',human_confirmation:true,external_send:false,automatic_award:false},
+ candidate:{program_id:'DEMO-DX-2026',claims,text:buildText(claims)},
+ note:'資料と相談条件が揃っている例です。採用可でも、職員が確認する回答案の範囲にとどめます。',
+ question:'自治体Xに事業所があります。従業員8人ですが、デジタル化の補助制度を利用できますか？',
+ resolution_log:[]};
+}
+function refreshText(input){input.candidate.text=buildText(input.candidate.claims);return input;}
+const SCENARIOS=[
+ {id:'normal',name:'通常の案内',make(){return baseInput();}},
+ {id:'missing',name:'相談条件が不足',make(){const x=baseInput();x.id='CASE-02';x.label='相談条件が不足';x.applicant.employees=null;x.applicant.tax_arrears=null;x.candidate.claims.eligibility.value='needs_review';x.question='自治体Xに事業所があります。デジタル化の補助制度について教えてください。';x.note='従業員数・市税滞納の有無が未確認です。不足を職員に示し、情報が揃うまで回答案の採用を保留します。';return refreshText(x);}},
+ {id:'wrong_city',name:'自治体が違う',make(){const x=baseInput();x.id='CASE-03';x.label='自治体が違う';x.candidate.claims.municipality.value='自治体Y';x.note='依頼は自治体Xですが、回答は自治体Yの制度として案内しています。対象の食い違いを検出します。';return refreshText(x);}},
+ {id:'stale',name:'古い資料',make(){const x=baseInput();x.id='CASE-04';x.label='古い資料';x.sources[0].version='0.9';x.sources[0].year=2025;x.sources[0].published_at='2025-09-01';x.sources[0].valid_from='2025-09-01';x.sources[0].valid_to='2025-10-31';x.sources[0].text=x.sources[0].text.replaceAll('2026','2025');x.sources[0].facts.deadline='2025-10-31';x.candidate.claims.deadline.value='2025-10-31';x.note='2026年度の相談に、2025年度の資料を参照した例です。採用対象の版・期間と一致しないため止めます。';return refreshText(x);}},
+ {id:'unsupported',name:'根拠が不足',make(){const x=baseInput();x.id='CASE-05';x.label='根拠が不足';x.candidate.claims.max_yen.source_id=null;x.candidate.claims.max_yen.section=null;x.candidate.claims.max_yen.source_hash=null;x.note='上限30万円という値は回答にありますが、その主張に対応する根拠が未登録です。値が偶然合っていても採用を保留します。';return refreshText(x);}},
+ {id:'inflated',name:'上限額が不一致',make(){const x=baseInput();x.id='CASE-06';x.label='上限額が不一致';x.candidate.claims.max_yen.value=600000;x.note='回答は「上限60万円」ですが、資料は「上限30万円」です。根拠のある不整合として不採用にします。';return refreshText(x);}}
+];
+const STATUS={PASS:{title:'回答案として採用可',caption:'職員の確認へ進められます',short:'通過',class:'',icon:'check'},HOLD:{title:'職員による追加確認',caption:'不足情報が揃うまで、採用を保留します',short:'不足',class:'hold',icon:'clock'},REJECT:{title:'この回答案は不採用',caption:'不整合のある回答案は、採用に進めません',short:'不整合',class:'reject',icon:'x'}};
+const worst=(arr)=>arr.includes('REJECT')?'REJECT':arr.includes('HOLD')?'HOLD':'PASS';
+function sourceFor(input,id){return input.sources.find(s=>s.id===id);}
+async function evaluate(input){
+ const c=input.candidate.claims,trace=[], checks=[];
+ const sourceHashes={};for(const s of input.sources)sourceHashes[s.id]=await hash(s);
+ // Trace each typed claim back to the local source section. No natural-language inference.
+ for(const [key,meta] of Object.entries(CLAIM_META)){
+  const cl=c[key];let status='PASS',detail='',source=null;
+  if(!cl){status='HOLD';detail='構造化された主張が登録されていません。';}
+  else if(!cl.source_id||!cl.section){status='HOLD';detail='この主張と資料の該当項目との対応が未登録です。';}
+  else if(!input.source_ids.includes(cl.source_id)||!(source=sourceFor(input,cl.source_id))){status='HOLD';detail='参照する資料のスナップショットが不足しています。';}
+  else if(cl.source_id!==meta.source||cl.section!==meta.section||!source.sections[cl.section]){status='REJECT';detail='主張に指定された資料・参照箇所が検査対象と一致しません。';}
+  else{
+   let expected;
+   if(key==='eligibility')expected=getEligibility(input.applicant);
+   else if(key==='conditions')expected=source.facts.mandatory_conditions;
+   else expected=source.facts[key];
+   const same=key==='conditions'?Array.isArray(cl.value)&&Array.isArray(expected)&&expected.every(v=>cl.value.includes(v))&&cl.value.every(v=>expected.includes(v)):canonical(cl.value)===canonical(expected);
+   if(!same){status='REJECT';detail=`資料・条件の値「${valueLabel(key,expected)}」と回答の値「${valueLabel(key,cl.value)}」が一致しません。`;}
+   else if(key==='eligibility'&&expected==='needs_review'){status='HOLD';detail='必要な相談者条件が未確認です。資料だけでは対象候補と確認できません。';}
+   else if(key==='eligibility'){detail=expected==='out_of_scope'?'入力上の対象外条件と、対象外という案内が一致しています。受給審査ではありません。':'合成入力の条件と募集要領の対象条件が対応しています。受給資格は確定しません。';}
+   else if(key==='conditions')detail='案内に必要な5条件が構造化主張に含まれます。';
+   else if(key==='award_guarantee')detail='受給・採択を断定せず、正式な申請・審査を要する旨と一致します。';
+   else detail=`参照項目の値「${valueLabel(key,expected)}」と、構造化された回答の値が一致します。`;
+  }
+  trace.push({key,label:meta.label,value:cl?.value??null,source_id:cl?.source_id??null,section:cl?.section??null,status,detail});
+ }
+ const add=(id,status,detail)=>checks.push({id,name:POLICY.criteria.find(r=>r.id===id).name,status,detail});
+ const targetOK=canonical(input.target)===canonical(POLICY.target)&&input.candidate.program_id===input.target.program_id&&c.municipality?.value===input.target.municipality;
+ const badTargetSources=input.sources.some(s=>input.source_ids.includes(s.id)&&(s.municipality!==input.target.municipality||s.program_id!==input.target.program_id));
+ add('R01',targetOK&&!badTargetSources?'PASS':'REJECT',targetOK&&!badTargetSources?'自治体X・指定制度と、回答および参照資料の対象が一致。':'依頼された自治体・制度と、回答または参照資料の対象が不一致。');
+ let current=[];for(const id of input.source_ids){const s=sourceFor(input,id),ref=SOURCE_CATALOG.find(v=>v.id===id);if(!s){current.push('HOLD');continue;}current.push(!ref||s.version!==ref.version||s.year!==ref.year||input.as_of<s.valid_from||input.as_of>s.valid_to?'REJECT':'PASS');}
+ if(!input.source_ids.includes('SRC-01'))current.push('HOLD');
+ const freshness=worst(current);
+ add('R02',freshness,freshness==='PASS'?`基準日 ${formatDate(input.as_of)} は募集期間内。採用対象の資料版と一致。`:freshness==='HOLD'?'対象資料が足りないため、版・募集期間を確認できません。':'基準日時点で募集期間外、または採用対象の資料版・年度と不一致。');
+ const missing={establishment:'事業所',employees:'従業員数',tax_arrears:'市税滞納',duplicate:'重複補助'};
+ const missingNames=Object.keys(missing).filter(k=>input.applicant[k]===null||input.applicant[k]===undefined).map(k=>missing[k]);
+ const eligible=getEligibility(input.applicant);
+ const conditionStatus=missingNames.length?'HOLD':eligible===c.eligibility?.value?'PASS':'REJECT';
+ add('R03',conditionStatus,conditionStatus==='HOLD'?`${missingNames.join('・')}が未確認。相談者条件を補うまで採用を保留。`:conditionStatus==='REJECT'?'相談条件から導かれる対象区分と、回答中の案内が不一致。':eligible==='out_of_scope'?'対象外となる入力条件を、回答でも対象外として案内。':'事業所・従業員数・滞納・重複補助の合成条件と案内が一致。');
+ const traceStatus=worst(trace.map(t=>t.status));
+ const traceProblems=trace.filter(t=>t.status!=='PASS');
+ add('R04',traceStatus,traceStatus==='PASS'?'7つの構造化主張を、資料の該当項目と対応付けて照合。':traceProblems.map(t=>`${t.label}：${t.status==='HOLD'?'根拠または入力不足':'根拠と不一致'}`).join('／'));
+ const conditions=Array.isArray(c.conditions?.value)?c.conditions.value:[];
+ const mandatoryOK=POLICY.mandatory_conditions.every(k=>conditions.includes(k))&&c.award_guarantee?.value===false;
+ add('R05',mandatoryOK?'PASS':'REJECT',mandatoryOK?'必須条件を明記。受給・採択は正式な審査による旨を表示。':'必須条件が欠落、または受給・採択を確定したように表現。');
+ const dataOK=input.applicant.synthetic===true&&input.data_policy.classification===POLICY.allowed_data&&input.data_policy.template_only===true&&input.data_policy.network==='none'&&input.sources.every(s=>s.classification==='public_sample');
+ add('R06',dataOK?'PASS':'REJECT',dataOK?'同梱の架空資料・合成入力と、外部通信なしの設定を確認。':'データ区分または処理設定が「公開サンプル＋合成入力」の範囲外。');
+ const gateOK=input.workflow.use===POLICY.permitted_use&&input.workflow.human_confirmation===true&&input.workflow.external_send===false&&input.workflow.automatic_award===false;
+ add('R07',gateOK?'PASS':'REJECT',gateOK?'職員の回答案確認に限定。対外自動送信・受給自動決定を許可しない。':'職員確認の欠落、対外自動送信、または受給自動決定の設定が存在。');
+ const bindings=[];
+ for(const id of input.source_ids){const s=sourceFor(input,id);if(!s)bindings.push('HOLD');else if(!CATALOG_HASHES[id]||sourceHashes[id]!==CATALOG_HASHES[id])bindings.push('REJECT');else bindings.push('PASS');}
+ for(const cl of Object.values(c)){if(!cl?.source_id||!cl.source_hash)bindings.push('HOLD');else if(!sourceHashes[cl.source_id])bindings.push('HOLD');else bindings.push(cl.source_hash===sourceHashes[cl.source_id]?'PASS':'REJECT');}
+ if(input.candidate.text!==buildText(c))bindings.push('REJECT');
+ const integrity=worst(bindings);
+ add('R08',integrity,integrity==='PASS'?'資料の内容識別値・主張の参照・テンプレート表示文が一致。':integrity==='HOLD'?'資料や参照識別値が足りず、結合した証拠の同一性を確認できません。':'採用対象資料の内容、主張の参照識別値、または表示文に不一致。');
+ return {decision:worst(checks.map(x=>x.status)),checks,trace,source_hashes:sourceHashes};
+}
+let state={scenario:'normal',input:null,result:null,packet:null,history:[],revision:0,batch:null};
+let runToken=0,toastTimer;
+function toast(message){$('toast').textContent=message;$('toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),3600);}
+function setView(name,scrollTarget){
+ for(const b of document.querySelectorAll('[data-view]')){const yes=b.dataset.view===name;b.setAttribute('aria-selected',String(yes));b.tabIndex=yes?0:-1;}
+ for(const id of ['demo','evidence','public'])$('view-'+id).hidden=id!==name;
+ if(scrollTarget)setTimeout(()=>$(scrollTarget)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}),30);
+ else window.scrollTo({top:0,behavior:'instant'});
+}
+function renderScenarios(){
+ $('scenario-list').innerHTML=SCENARIOS.map((s,i)=>`<button type="button" class="scenario" data-scenario="${s.id}" aria-pressed="${s.id===state.scenario}"><span class="scenario-num mono">CASE 0${i+1}</span><span class="scenario-title">${s.name}</span></button>`).join('');
+}
+function factHTML(label,value,unknown=false){return `<div class="fact"><span>${label}</span><b class="${unknown?'unknown':''}">${escapeHTML(value)}</b></div>`;}
+function renderInput(){
+ const x=state.input,a=x.applicant;
+ $('consultant-label').textContent=a.label;$('case-id').textContent=x.id;$('question').textContent=x.question;$('case-hint').textContent=x.note;
+ $('fact-grid').innerHTML=factHTML('事業所',a.establishment===null?'未確認':a.establishment?'自治体X内':'自治体外',a.establishment===null)+factHTML('従業員数',a.employees===null?'未確認':a.employees+'人',a.employees===null)+factHTML('市税滞納',a.tax_arrears===null?'未確認':a.tax_arrears?'あり':'なし',a.tax_arrears===null)+factHTML('重複補助',a.duplicate===null?'未確認':a.duplicate?'あり':'なし',a.duplicate===null);
+ $('program-label').textContent='小規模事業者デジタル活用支援（架空）';$('reference-date').textContent=`基準日：${formatDate(x.as_of)}（固定）／ SRC-01・02`;
+ let escaped=escapeHTML(x.candidate.text);
+ const amount=escapeHTML(valueLabel('max_yen',x.candidate.claims.max_yen.value));
+ escaped=escaped.replace('上限は'+amount,`上限は<span class="${x.candidate.claims.max_yen.value!==300000?'errorclaim':'emphasis'}">${amount}</span>`);
+ $('answer-text').innerHTML=escaped;$('claim-count').textContent='7 CLAIMS';
+ $('evidence-context').textContent=x.id+' / '+x.label;
+}
+function renderResult(){
+ const r=state.result,s=STATUS[r.decision];
+ $('result-card').className='card resultcard'+(s.class?' is-'+s.class:'');$('decision-badge').className='resultbadge '+s.class;$('decision-badge').textContent=r.decision;
+ $('mobile-verdict').className='mobile-verdict '+s.class;$('mobile-status').innerHTML=icon(s.icon)+escapeHTML(s.title);
+ $('decision-icon').innerHTML=icon(s.icon);$('decision-title').textContent=s.title;$('decision-caption').textContent=s.caption;
+ const problems=r.checks.filter(c=>c.status!=='PASS');
+ let summary=r.decision==='PASS'?'指定した8条件を通過しました。職員が回答案と根拠を確認する段階へ進められます。':r.decision==='HOLD'?'現時点の証拠・条件では、採用条件の充足を確認できません。下記の未確認項目を補い、再検証してください。':'回答または処理条件に不整合があります。内容を修正し、採用条件を満たすまで、この回答案は使用しません。';
+ $('decision-summary').textContent=summary;
+ $('metric-passed').textContent=r.checks.filter(c=>c.status==='PASS').length;
+ $('metric-sources').textContent=new Set(r.trace.filter(t=>t.source_id&&state.input.sources.some(s=>s.id===t.source_id)&&state.input.source_ids.includes(t.source_id)).map(t=>t.source_id)).size;
+ $('metric-issues').textContent=problems.length;
+ $('checks').innerHTML=r.checks.map(c=>`<div class="checkrow"><div class="checkid mono">${c.id}</div><div><div class="checkname">${escapeHTML(c.name)}</div><div class="checkdesc ${c.status==='PASS'?'':'alert-'+STATUS[c.status].class}">${escapeHTML(c.detail)}</div></div><span class="checkstate ${STATUS[c.status].class}">${icon(STATUS[c.status].icon)}${STATUS[c.status].short}</span></div>`).join('');
+ const resolution=$('resolution');resolution.className='resolution';
+ if(state.scenario==='missing'&&r.decision==='HOLD'){
+  resolution.hidden=false;resolution.innerHTML='<div class="resolution-text"><b>次に確認すること</b>従業員数と市税滞納の有無を補完。<br>デモでは「8人・滞納なし」で再判定します。</div><button type="button" class="btn smallbtn" id="resolve-button">条件を補って再判定</button>';
+ }else if(state.scenario==='unsupported'&&r.decision==='HOLD'){
+  resolution.hidden=false;resolution.innerHTML='<div class="resolution-text"><b>次に確認すること</b>「上限30万円」の根拠として、<br>SRC-01の§3を対応付けます。</div><button type="button" class="btn smallbtn" id="resolve-button">根拠を補って再判定</button>';
+ }else if(state.input.resolution_log.length&&r.decision==='PASS'){
+  resolution.hidden=false;resolution.className='resolution success';resolution.innerHTML=`<div class="resolution-text"><b>${icon('check')} 補完後の再判定：HOLD → PASS</b>補完前の保留判定と、補完内容を履歴に残しました。</div>`;
+ }else{resolution.hidden=true;resolution.innerHTML='';}
+}
+function renderEvidence(){
+ $('requirement-list').innerHTML=POLICY.criteria.map(c=>`<div class="req-item"><span class="mono">${c.id}</span><div><strong>${c.name}</strong><p>${c.description}</p></div></div>`).join('');
+ $('policy-hash').textContent='POLICY SHA-256 / '+POLICY_HASH;
+ $('source-list').innerHTML=state.input.source_ids.map(id=>{
+ const s=sourceFor(state.input,id);if(!s)return `<div class="sourceitem"><div class="mono small">${escapeHTML(id)}</div><h3>資料スナップショットが未登録</h3></div>`;
+ const current=CATALOG_HASHES[id]===state.result.source_hashes[id];
+ return `<div class="sourceitem"><div class="source-meta"><span class="mono">${escapeHTML(s.id)}</span><span>v${escapeHTML(s.version)} / ${escapeHTML(s.year)}年度</span><span style="color:${current?'var(--teal)':'var(--red)'}">${current?'採用対象の内容と一致':'採用対象の版・内容と不一致'}</span></div><h3>${escapeHTML(s.title)}</h3><div class="source-meta"><span>公開日（架空）：${formatDate(s.published_at)}</span><span>期間：${formatDate(s.valid_from)} – ${formatDate(s.valid_to)}</span></div><div class="source-copy">${escapeHTML(s.text)}</div><p class="hashline mono">SHA-256 ${state.result.source_hashes[id]}</p></div>`;
+ }).join('');
+ $('trace-body').innerHTML=state.result.trace.map(t=>{
+ const src=sourceFor(state.input,t.source_id);const title=src&&t.section&&src.sections[t.section]?`${t.source_id} / ${src.sections[t.section]}`:'対応する根拠が未登録';
+ return `<tr><td><strong>${escapeHTML(t.label)}</strong><span class="trace-sub">${escapeHTML(valueLabel(t.key,t.value))}</span></td><td>${escapeHTML(title)}<span class="trace-sub">${t.key==='eligibility'?'＋ 合成相談者の属性入力':src?'資料の構造化項目を使用':'対応付けが必要'}</span></td><td>${escapeHTML(t.detail)}</td><td><span class="trace-state ${STATUS[t.status].class}">${t.status} / ${STATUS[t.status].short}</span></td></tr>`;
+ }).join('');
+}
+async function buildPacket(input,result){
+ const payload={
+ schema:'responsibility-information-packet/demo-1.0',demo_only:true,
+ case_id:input.id,local_execution_time:new Date().toISOString(),time_attestation:'none',
+ requirements:{id:POLICY.id,version:POLICY.version,sha256:POLICY_HASH,specification:clone(POLICY)},
+ evaluation_input:clone(input),
+ verification:{decision:result.decision,permitted_action:result.decision==='PASS'?'staff_review_of_answer_draft':'none',checks:clone(result.checks),claim_evidence:clone(result.trace),source_sha256:clone(result.source_hashes)},
+ unresolved:result.checks.filter(c=>c.status!=='PASS').map(c=>({requirement:c.id,status:c.status,reason:c.detail})),
+ scope:{data:'fictional_sources_and_synthetic_applicant',method:'deterministic_rules_on_structured_claims',natural_language_inference:false,formal_proof_checker:false,real_world_validation:false,administrative_decision:false,external_send:false},
+ nonclaims:['No legal compliance certification','No source or issuer authentication','No real applicant verification','No production privacy guarantee'],
+ };
+ const digest=await hash(payload);
+ return {packet_id:'RIP-DEMO-'+digest.slice(0,12).toUpperCase(),payload,integrity:{algorithm:'SHA-256',canonicalization:'Recursively sorted object keys; array order preserved; JSON primitives; UTF-8; no whitespace',sha256:digest,issuer_signature:null}};
+}
+function renderPacket(){
+ const p=state.packet;
+ $('packet-short').textContent=p.packet_id;
+ const preview={packet_id:p.packet_id,demo_only:true,requirements:{id:POLICY.id,version:POLICY.version,sha256:POLICY_HASH},decision:p.payload.verification.decision,permitted_action:p.payload.verification.permitted_action,checks:p.payload.verification.checks.map(c=>({id:c.id,result:c.status})),unresolved:p.payload.unresolved,source_sha256:p.payload.verification.source_sha256,packet_sha256:p.integrity.sha256};
+ $('packet-json').textContent=JSON.stringify(preview,null,2);
+ $('verify-output').innerHTML='<span class="muted">まだ再検証していません。</span>';
+ $('tamper-button').disabled=false;$('verify-packet').disabled=false;$('save-packet').disabled=false;$('save-main').disabled=false;
+}
+function renderHistory(){
+ $('history-count').textContent=state.history.length;
+ $('history-list').innerHTML=state.history.slice().reverse().map(h=>`<div class="history-entry"><span class="time mono">${escapeHTML(h.time)}</span><div><h3>${escapeHTML(h.label)}</h3><p>${escapeHTML(h.action)} / ${escapeHTML(h.packet_id)}</p></div><span class="resultbadge ${STATUS[h.decision].class}">${h.decision}</span></div>`).join('')||'<p class="muted small">まだ検証履歴がありません。</p>';
+}
+function setBusy(b){for(const id of ['run-button','save-main','save-packet','verify-packet','tamper-button'])$(id).disabled=b;}
+async function runCurrent(action='採用条件を再検証',notify=false){
+ const token=++runToken;setBusy(true);const x=clone(state.input);
+ const result=await evaluate(x);const packet=await buildPacket(x,result);
+ if(token!==runToken)return;
+ state.result=result;state.packet=packet;renderResult();renderEvidence();renderPacket();
+ state.history.push({time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),label:x.id+' / '+x.label,action,decision:result.decision,packet_id:packet.packet_id});
+ if(state.history.length>100)state.history.shift();renderHistory();setBusy(false);
+ if(notify)toast(`${result.decision} / ${STATUS[result.decision].title}。検証記録を更新しました。`);
+}
+async function selectScenario(id){
+ const s=SCENARIOS.find(s=>s.id===id);if(!s)return;
+ state.scenario=id;state.input=s.make();state.revision=0;renderScenarios();renderInput();await runCurrent('代表ケースを選択');
+}
+async function resolveCase(){
+ if(state.result?.decision!=='HOLD')return;
+ const before=state.packet.packet_id;
+ if(state.scenario==='missing'){
+  state.input.applicant.employees=8;state.input.applicant.tax_arrears=false;state.input.candidate.claims.eligibility.value='candidate';
+  state.input.resolution_log.push({prior_packet_id:before,prior_decision:'HOLD',change:{employees:8,tax_arrears:false},source:'synthetic_case_completion',real_person_confirmation:false});
+  state.input.note='デモ上で「従業員8人・滞納なし」を補完しました。回答案を更新し、同じ採用条件で再判定します。';
+ }else if(state.scenario==='unsupported'){
+  state.input.candidate.claims.max_yen={value:300000,source_id:'SRC-01',section:'amount',source_hash:CATALOG_HASHES['SRC-01']};
+  state.input.resolution_log.push({prior_packet_id:before,prior_decision:'HOLD',change:{claim:'max_yen',source_id:'SRC-01',section:'amount'},source:'synthetic_evidence_binding'});
+  state.input.note='上限額の根拠としてSRC-01 §3を対応付けました。資料に書かれた値と、回答の値を再照合します。';
+ }else return;
+ refreshText(state.input);renderInput();await runCurrent('不足を補完して再判定',true);
+}
+function saveJSON(value,filename){const blob=new Blob([JSON.stringify(value,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
+function savePacket(){if(!state.packet)return;saveJSON(state.packet,state.packet.packet_id+'.json');toast('架空サンプルの検証記録をJSONで保存しました。');}
+function validateShape(p){
+ if(!p||typeof p!=='object'||Array.isArray(p)||p.payload?.schema!=='responsibility-information-packet/demo-1.0'||p.payload?.demo_only!==true||p.integrity?.algorithm!=='SHA-256')throw new Error('このHTMLのデモ用責任情報パケットではありません。');
+ const x=p.payload.evaluation_input;
+ if(!x||!x.applicant||!x.target||!x.candidate||!x.candidate.claims||!Array.isArray(x.source_ids)||!Array.isArray(x.sources)||x.sources.length>10||x.source_ids.length>10||!x.workflow||!x.data_policy)throw new Error('入力・参照資料・処理設定の形式が不正です。');
+ if(typeof x.as_of!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(x.as_of))throw new Error('基準日の形式が不正です。');
+ if(typeof x.candidate.text!=='string'||x.candidate.text.length>20000)throw new Error('回答文の形式が不正です。');
+ if(!p.payload.verification||!Array.isArray(p.payload.verification.checks)||p.payload.verification.checks.length!==8)throw new Error('検証結果の形式が不正です。');
+ for(const s of x.sources)if(!s||typeof s.id!=='string'||!s.facts||!s.sections||typeof s.text!=='string')throw new Error('資料スナップショットの形式が不正です。');
+ if(new Set(x.sources.map(s=>s.id)).size!==x.sources.length||new Set(x.source_ids).size!==x.source_ids.length)throw new Error('参照資料の識別子が重複しています。');
+ for(const [key] of Object.entries(CLAIM_META))if(!x.candidate.claims[key]||!Object.hasOwn(x.candidate.claims[key],'value'))throw new Error('必要な構造化主張がありません。');
+ if(!Number.isInteger(x.applicant.employees)&&x.applicant.employees!==null)throw new Error('従業員数が整数または未確認値ではありません。');
+ if(x.applicant.employees!==null&&x.applicant.employees<0)throw new Error('従業員数が不正です。');
+ for(const k of ['establishment','tax_arrears','duplicate'])if(![true,false,null].includes(x.applicant[k]))throw new Error('相談条件の型が不正です。');
+ return x;
+}
+async function verify(p){
+ const input=validateShape(p),recomputedHash=await hash(p.payload);
+ const intact=recomputedHash===p.integrity.sha256&&p.packet_id==='RIP-DEMO-'+recomputedHash.slice(0,12).toUpperCase();
+ const policyMatch=p.payload.requirements?.sha256===POLICY_HASH&&await hash(p.payload.requirements?.specification)===POLICY_HASH;
+ const result=await evaluate(input);
+ const expectedVerification={decision:result.decision,permitted_action:result.decision==='PASS'?'staff_review_of_answer_draft':'none',checks:result.checks,claim_evidence:result.trace,source_sha256:result.source_hashes};
+ const outcomeMatch=canonical(expectedVerification)===canonical(p.payload.verification);
+ return {intact,policyMatch,outcomeMatch,result,ok:intact&&policyMatch&&outcomeMatch};
+}
+async function showVerification(p,label){
+ const out=$('verify-output');out.textContent='内容と検査結果を照合しています…';
+ try{
+  const v=await verify(p),line=(ok,text)=>`<div class="verify-line ${ok?'good':'bad'}">${icon(ok?'check':'x')}<span>${text}</span></div>`;
+  out.innerHTML=`<div class="small muted" style="margin-bottom:9px">${escapeHTML(label)}</div>`+line(v.intact,'パケットの内容識別値：'+(v.intact?'一致':'不一致'))+line(v.policyMatch,'同梱の要求仕様・版：'+(v.policyMatch?'一致':'不一致'))+line(v.outcomeMatch,'判定・各検査・根拠対応：'+(v.outcomeMatch?'再現':'記録と不一致'))+`<div class="verify-conclusion" style="color:${v.ok?'var(--teal)':'var(--red)'}">${v.ok?'再検証成立':'再検証不成立'} / 再計算した判定：${v.result.decision}</div><p style="font-size:10px;margin-top:7px">${v.ok?'同梱ルールで記録を再現しました。制度の真正性・法的適合性や、発行者の認証を意味しません。':'この記録を検証済みのものとして扱わないでください。画面で選択中の元パケットは変更していません。'}</p>`;
+  return v;
+ }catch(err){out.innerHTML=`<div class="verify-line bad">${icon('x')}<span>読み込み・検証に失敗しました</span></div><p>${escapeHTML(err.message)}</p>`;return null;}
+}
+// Defined expectations, not derived from the evaluator. These are synthetic rule tests.
+function buildTests(){
+ const list=[];function add(id,label,expected,mutate){const x=baseInput();x.id='TEST-'+String(id).padStart(2,'0');x.label=label;if(mutate)mutate(x);refreshText(x);list.push({id:x.id,label,expected,input:x});}
+ add(1,'正常：対象候補・根拠あり','PASS');
+ add(2,'境界値：従業員20人','PASS',x=>x.applicant.employees=20);
+ add(3,'境界値：従業員0人','PASS',x=>x.applicant.employees=0);
+ add(4,'期間境界：募集開始日','PASS',x=>x.as_of='2026-09-01');
+ add(5,'期間境界：募集終了日','PASS',x=>x.as_of='2026-10-31');
+ add(6,'正しい対象外案内：従業員21人','PASS',x=>{x.applicant.employees=21;x.candidate.claims.eligibility.value='out_of_scope';});
+ add(7,'正しい対象外案内：市税滞納あり','PASS',x=>{x.applicant.tax_arrears=true;x.candidate.claims.eligibility.value='out_of_scope';});
+ add(8,'正しい対象外案内：重複補助あり','PASS',x=>{x.applicant.duplicate=true;x.candidate.claims.eligibility.value='out_of_scope';});
+ add(9,'従業員数が未確認','HOLD',x=>{x.applicant.employees=null;x.candidate.claims.eligibility.value='needs_review';});
+ add(10,'市税滞納が未確認','HOLD',x=>{x.applicant.tax_arrears=null;x.candidate.claims.eligibility.value='needs_review';});
+ add(11,'事業所の条件が未確認','HOLD',x=>{x.applicant.establishment=null;x.candidate.claims.eligibility.value='needs_review';});
+ add(12,'重複補助が未確認','HOLD',x=>{x.applicant.duplicate=null;x.candidate.claims.eligibility.value='needs_review';});
+ add(13,'募集要領を参照に含めていない','HOLD',x=>x.source_ids=['SRC-02']);
+ add(14,'上限額の根拠対応が未登録','HOLD',x=>{x.candidate.claims.max_yen.source_id=null;x.candidate.claims.max_yen.section=null;x.candidate.claims.max_yen.source_hash=null;});
+ add(15,'確認事項のスナップショットが欠落','HOLD',x=>x.sources=x.sources.filter(s=>s.id!=='SRC-02'));
+ add(16,'回答が別の自治体を案内','REJECT',x=>x.candidate.claims.municipality.value='自治体Y');
+ add(17,'回答の対象制度IDが異なる','REJECT',x=>x.candidate.program_id='OTHER-PROGRAM');
+ add(18,'募集終了日の翌日','REJECT',x=>x.as_of='2026-11-01');
+ add(19,'募集開始日の前日','REJECT',x=>x.as_of='2026-08-31');
+ add(20,'古い資料版を参照','REJECT',x=>x.sources[0].version='0.9');
+ add(21,'上限30万円を60万円と案内','REJECT',x=>x.candidate.claims.max_yen.value=600000);
+ add(22,'補助率1/2を75%と案内','REJECT',x=>x.candidate.claims.rate.value=0.75);
+ add(23,'申請期限を誤って案内','REJECT',x=>x.candidate.claims.deadline.value='2026-11-30');
+ add(24,'対象外なのに対象候補と案内','REJECT',x=>x.applicant.employees=21);
+ add(25,'重複補助の必須条件を欠落','REJECT',x=>x.candidate.claims.conditions.value=x.candidate.claims.conditions.value.filter(v=>v!=='duplicate'));
+ add(26,'採択・受給を確定と断定','REJECT',x=>x.candidate.claims.award_guarantee.value=true);
+ add(27,'合成データ以外の区分を指定','REJECT',x=>{x.applicant.synthetic=false;x.data_policy.classification='real_resident_data';});
+ add(28,'対外自動送信を許可する設定','REJECT',x=>x.workflow.external_send=true);
+ add(29,'職員確認なしで受給自動決定','REJECT',x=>{x.workflow.human_confirmation=false;x.workflow.automatic_award=true;});
+ add(30,'資料本文の内容が変更されている','REJECT',x=>x.sources[0].text=x.sources[0].text.replace('上限30万円','上限60万円'));
+ return list;
+}
+async function batchRun(){
+ const b=$('batch-button');b.disabled=true;b.innerHTML=icon('clock')+'参考テストを実行中';
+ try{
+  const tests=buildTests(),rows=[];
+  for(const t of tests){const r=await evaluate(t.input);rows.push({id:t.id,label:t.label,expected:t.expected,actual:r.decision,matched:r.decision===t.expected});}
+  const matched=rows.filter(r=>r.matched).length,counts={PASS:0,HOLD:0,REJECT:0};rows.forEach(r=>counts[r.actual]++);state.batch=rows;
+  $('batch-match').innerHTML=matched+' <small>/ 30</small>';$('batch-pass').textContent=counts.PASS;$('batch-hold').textContent=counts.HOLD;$('batch-reject').textContent=counts.REJECT;
+  $('batch-match').nextElementSibling.textContent='ブラウザ内で実行済み / 合成テスト';
+  $('batch-summary').textContent=`定義した30ケース中${matched}件で期待判定と一致しました（PASS ${counts.PASS}件 / HOLD ${counts.HOLD}件 / REJECT ${counts.REJECT}件）。これは同梱ルールと合成データによる参考テストの実行結果であり、自治体での実証・生成AI精度の測定ではありません。`;
+  $('batch-details').hidden=false;$('batch-body').innerHTML=rows.map(r=>`<tr><td class="mono">${r.id}</td><td>${r.label}</td><td>${r.expected}</td><td><span class="resultbadge ${STATUS[r.actual].class}">${r.actual}</span></td><td class="${r.matched?'match':''}">${r.matched?'一致':'不一致'}</td></tr>`).join('');
+  toast(`参考テストを実行：${matched}/30件で期待判定と一致。`);
+ }catch(e){$('batch-summary').textContent='参考テストの実行に失敗しました：'+e.message;}
+ finally{b.disabled=false;b.innerHTML=icon('replay')+'参考テストを再実行';}
+}
+async function copyPress(){
+ const text='【共同PoCの提案用文案／未発表・未実証】\n\nAIの回答を「採用できる条件」と「根拠」まで確認する自治体PoCへ\n\n'+$('press-copy').textContent;
+ try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}else{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok)throw Error('copy');}toast('未発表・未実証の注記付きで説明文案をコピーしました。');}
+ catch(e){const range=document.createRange();range.selectNodeContents($('press-copy'));const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);toast('自動コピーできませんでした。選択した本文をコピーしてください。');}
+}
+function reportError(e){console.error(e);$('fatal').textContent='デモの処理を完了できませんでした。ブラウザでファイルを開き直してください。詳細：'+e.message;$('fatal').style.display='block';}
+function wire(){
+ document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+ document.querySelector('.tabs').addEventListener('keydown',e=>{const tabs=[...document.querySelectorAll('[data-view]')],idx=tabs.indexOf(document.activeElement);if(idx<0)return;let next=idx;if(e.key==='ArrowRight')next=(idx+1)%tabs.length;else if(e.key==='ArrowLeft')next=(idx+tabs.length-1)%tabs.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=tabs.length-1;else return;e.preventDefault();tabs[next].focus();setView(tabs[next].dataset.view);});
+ $('scenario-list').addEventListener('click',e=>{const b=e.target.closest('[data-scenario]');if(b)selectScenario(b.dataset.scenario).catch(reportError);});
+ $('run-button').addEventListener('click',()=>runCurrent('採用条件を手動で再検証',true).catch(reportError));
+ $('resolution').addEventListener('click',e=>{if(e.target.closest('#resolve-button'))resolveCase().catch(reportError);});
+ $('save-main').addEventListener('click',savePacket);$('save-packet').addEventListener('click',savePacket);
+ $('mobile-verdict').addEventListener('click',()=>$('result-card').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}));
+ $('trace-button').addEventListener('click',()=>setView('evidence','trace-card'));
+ $('packet-button').addEventListener('click',()=>setView('evidence','packet-detail'));
+ $('verify-packet').addEventListener('click',()=>showVerification(state.packet,'現在のパケット / '+state.packet.packet_id));
+ $('tamper-button').addEventListener('click',()=>{const edited=clone(state.packet);edited.payload.evaluation_input.candidate.claims.max_yen.value+=100000;showVerification(edited,'一部変更したコピーを検査（元のパケットは変更しません）');});
+ $('load-packet').addEventListener('click',()=>$('packet-file').click());
+ $('packet-file').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{if(file.size>1024*1024)throw new Error('1MB以下のデモJSONを選択してください。');const p=JSON.parse(await file.text());await showVerification(p,'読み込んだファイル / '+file.name);toast('読み込んだJSONの検証結果を表示しました。選択中のケースは変更していません。');}catch(err){$('verify-output').textContent='読み込み失敗：'+err.message;toast('JSONを読み込めませんでした。');}finally{e.target.value='';}});
+ $('batch-button').addEventListener('click',batchRun);$('copy-press').addEventListener('click',copyPress);
+ $('history-button').addEventListener('click',()=>{renderHistory();$('history-dialog').showModal();});
+ document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).close()));
+ $('history-dialog').addEventListener('click',e=>{if(e.target===$('history-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
+}
+async function init(){
+ if(sha256Fallback('abc')!=='ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad')throw new Error('内容照合機能の初期検査に失敗しました。');
+ for(const s of SOURCE_CATALOG)CATALOG_HASHES[s.id]=await hash(s);POLICY_HASH=await hash(POLICY);wire();await selectScenario('normal');$('batch-button').disabled=false;
+ // Browser test hook exposes only the local demo, not external integrations.
+ window.PoCDemo={evaluate,baseInput,buildTests,verify,sha256Fallback,hash,getState:()=>state,selectScenario,resolveCase,buildPacket};
+ document.body.dataset.ready='true';
+}
+init().catch(reportError);
+</script>
+</body>
+</html>
