@@ -27,6 +27,20 @@ jobs:
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.13"
+      # lean-action requires lake-manifest.json during configuration.
+      # Create it with Lake on the runner; do not add a new tracked file.
+      - name: Prepare Lean toolchain and Lake manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            --output /tmp/civic-elan-init.sh
+          sh /tmp/civic-elan-init.sh -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          lake update
+          test -f lake-manifest.json
       - name: Check Lean model and theorems
         uses: leanprover/lean-action@f061402b660e0c34644504b324e830f2991d4865 # v1
         with:
