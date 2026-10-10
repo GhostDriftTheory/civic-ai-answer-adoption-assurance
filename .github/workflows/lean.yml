@@ -322,26 +322,75 @@ jobs:
                   name = add_case(x)
                   add_record(x, packet, name)
 
-              lines.append("end Conformance")
+              # Large, single-file elaboration can overflow Lean's native stack.
+              # Preserve every concrete kernel-checked proposition, but compile
+              # isolated temporary modules in bounded batches. No repo files added.
+              prelude = lines[:6]
+              fixed_examples = lines[6:8]
+              statements = lines[8:]
+              groups = []
+              for statement in statements:
+                  if statement.startswith("def sample_") or statement.startswith("example : worst "):
+                      groups.append([statement])
+                  elif groups:
+                      # This case's verification/draft proofs rely on its local def.
+                      groups[-1].append(statement)
+                  else:
+                      raise RuntimeError("Unexpected conformance statement without a case")
+              if len(groups) != case_count + gate_count or gate_count != 3**8:
+                  raise RuntimeError("Generated proof coverage changed unexpectedly")
+
+              def lean_check(name, text_lines):
+                  generated = temp / name
+                  generated.write_text("\n\n".join(text_lines) + "\n", encoding="utf-8")
+                  result = subprocess.run(["lake", "env", "lean", "-DwarningAsError=true", str(generated)],
+                                          text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+                  if result.returncode != 0:
+                      print(result.stdout, flush=True)
+                      raise RuntimeError(f"Lean checking failed in {name}; no conformance result was accepted")
+                  return result.stdout
+
+              # Keep the symbol definitions together with their example proofs.
+              # A small bound avoids the native stack overflow from ~15k Lean lines.
+              batches = 0
+              checked_groups = 0
+              pending = []
+              pending_bytes = 0
+              def flush_batch():
+                  global batches, checked_groups, pending, pending_bytes
+                  if not pending:
+                      return
+                  chunk = prelude + fixed_examples + [part for group in pending for part in group] + ["end Conformance"]
+                  lean_check(f"Conformance_{batches:03d}.lean", chunk)
+                  checked_groups += len(pending)
+                  batches += 1
+                  pending = []
+                  pending_bytes = 0
+
+              for group in groups:
+                  size = sum(len(line.encode("utf-8")) + 2 for line in group)
+                  if pending and (len(pending) >= 96 or pending_bytes + size > 64000):
+                      flush_batch()
+                  pending.append(group)
+                  pending_bytes += size
+              flush_batch()
+              if checked_groups != len(groups):
+                  raise RuntimeError("Not all generated conformance propositions were checked")
+              print(f"Lean concrete checks completed in {batches} bounded batches", flush=True)
+
+              # Proof dependency audit runs once on the compiled theorem module;
+              # do not mix it into thousands of generated examples.
+              audit_output = lean_check("ProofAxioms.lean", ["import CivicAnswerAdoption"] +
+                  [f"#print axioms CivicAnswerAdoption.{name}" for name in theorems])
               for theorem in theorems:
-                  lines.append(f"#print axioms CivicAnswerAdoption.{theorem}")
-              generated = temp / "Conformance.lean"
-              generated.write_text("\n\n".join(lines) + "\n", encoding="utf-8")
-              # This is a real Lean kernel check of the generated concrete propositions.
-              result = subprocess.run(["lake", "env", "lean", "-DwarningAsError=true", str(generated)],
-                                      text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
-              print(result.stdout)
-              if result.returncode != 0:
-                  raise RuntimeError("Lean conformance proof or axiom audit failed")
-              for theorem in theorems:
-                  if f"CivicAnswerAdoption.{theorem}" not in result.stdout:
+                  if f"CivicAnswerAdoption.{theorem}" not in audit_output:
                       raise RuntimeError("Missing axiom-audit output for " + theorem)
               allow = {"propext", "Quot.sound", "Classical.choice"}
-              for dependencies in re.findall(r"depends on axioms:\s*\[([^\]]*)\]", result.stdout):
+              for dependencies in re.findall(r"depends on axioms:\s*\[([^\]]*)\]", audit_output):
                   unexpected = {a.strip() for a in dependencies.split(",") if a.strip()} - allow
                   if unexpected:
                       raise RuntimeError("Unapproved axiom dependencies: " + repr(unexpected))
-              if any(word in result.stdout for word in ["sorryAx", "Lean.ofReduceBool", "Lean.trustCompiler"]):
+              if any(word in audit_output for word in ["sorryAx", "Lean.ofReduceBool", "Lean.trustCompiler"]):
                   raise RuntimeError("Unapproved proof dependency")
               report = (f"Lean model: {len(theorems)} named theorems checked.\n"
                         f"Python/Lean projected-input conformance: {case_count} cases.\n"
