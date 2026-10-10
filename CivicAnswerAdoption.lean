@@ -216,8 +216,8 @@ theorem trace_pass_iff (e : ClaimEvidence) (pending : Bool) :
       e.bindingPresent = true ∧ e.sourceAvailable = true ∧
       e.sectionMatches = true ∧ e.valueMatches = true ∧ pending = false := by
   cases e with
-  | mk bound available section value hashBound hashAvailable hashMatches =>
-    cases bound <;> cases available <;> cases section <;> cases value <;>
+  | mk bound available sectionOK value hashBound hashAvailable hashMatches =>
+    cases bound <;> cases available <;> cases sectionOK <;> cases value <;>
       cases hashBound <;> cases hashAvailable <;> cases hashMatches <;>
       cases pending <;> decide
 
@@ -230,8 +230,8 @@ theorem claim_binding_pass_iff (e : ClaimEvidence) :
     claimBinding e = .PASS ↔ e.hashBindingPresent = true ∧
       e.hashSourceAvailable = true ∧ e.hashMatches = true := by
   cases e with
-  | mk bound available section value hashBound hashAvailable hashMatches =>
-    cases bound <;> cases available <;> cases section <;> cases value <;>
+  | mk bound available sectionOK value hashBound hashAvailable hashMatches =>
+    cases bound <;> cases available <;> cases sectionOK <;> cases value <;>
       cases hashBound <;> cases hashAvailable <;> cases hashMatches <;> decide
 
 /-- 固定7主張。空の主張集合を「全部通過」と扱う構成にしない。 -/
