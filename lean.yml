@@ -1,0 +1,344 @@
+# Copyright © 2026 AI Assurance, Inc. All rights reserved.
+# Add this file at .github/workflows/lean.yml (not the repository root).
+name: Lean proofs and Python conformance
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: civic-assurance-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.13"
+      - name: Check Lean model and theorems
+        uses: leanprover/lean-action@f061402b660e0c34644504b324e830f2991d4865 # v1
+        with:
+          auto-config: "false"
+          build: "true"
+          test: "false"
+          lint: "false"
+          use-mathlib-cache: "false"
+          use-github-cache: "false"
+      - name: Check Python, projected inputs, and proof dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          # Embedded in lean.yml; not an additional repository file.
+          import itertools
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+          import sys
+          import tempfile
+          import poc
+
+          ROOT = Path.cwd()
+          source = (ROOT / "CivicAnswerAdoption.lean").read_text(encoding="utf-8")
+          # Build errors are fatal; also reject proof placeholders or custom axioms.
+          if re.search(r"\b(?:sorry|admit|native_decide|axiom)\b", source):
+              raise RuntimeError("Unproved declarations or compiler-trusting proof shortcuts found")
+          if re.findall(r"(?m)^import\s+(.+)$", source) != ["Std"]:
+              raise RuntimeError("Review changes to the proof module's imports")
+          theorems = re.findall(r"(?m)^theorem\s+([A-Za-z_][A-Za-z_0-9]*)", source)
+          if len(theorems) < 25:
+              raise RuntimeError("The expected core theorems are missing")
+          engine = poc.Engine(poc.read_json(ROOT / "cases.json"))
+          keys = ["municipality", "max_yen", "rate", "deadline", "eligibility", "conditions", "award_guarantee"]
+          fields = ["municipality", "maxYen", "rate", "deadline", "eligibility", "conditions", "awardGuarantee"]
+          if list(engine.meta) != keys or [r["id"] for r in engine.policy["criteria"]] != [f"R{i:02d}" for i in range(1, 9)]:
+              raise RuntimeError("Review changes to the seven claims or eight requirements")
+
+
+          def boolean(value):
+              if type(value) is not bool:
+                  raise TypeError("An observation must be a Boolean")
+              return "true" if value else "false"
+
+
+          def structure(items):
+              return "{ " + ", ".join(f"{k} := {v}" for k, v in items.items()) + " }"
+
+
+          def bool_structure(items):
+              return structure({k: boolean(v) for k, v in items.items()})
+
+
+          def lean_list(values):
+              return "[" + ", ".join(values) + "]"
+
+
+          def status(value):
+              if value not in poc.STATUSES:
+                  raise ValueError("Unknown status: " + str(value))
+              return "Status." + value
+
+
+          def action(value):
+              return "Action." + {"none": "none", "staff_review_of_answer_draft": "staffReview",
+                                  "external_send": "externalSend", "automatic_award": "administrativeAward"}[value]
+
+
+          def optional(value):
+              if value is None:
+                  return "none"
+              if type(value) is bool:
+                  return "(some " + boolean(value) + ")"
+              if type(value) is int and value >= 0:
+                  return "(some " + str(value) + ")"
+              raise ValueError("Unexpected applicant value")
+
+
+          def observe(x):
+              """Project raw input and primitive comparisons, NEVER Python result statuses.
+
+              SHA-256, canonical-value comparison, and template generation are explicit
+              trusted observation boundaries. The eligibility classification is recomputed
+              inside Lean from the four applicant attributes.
+              """
+              engine.validate_input(x)
+              sources = {s["id"]: s for s in x["sources"]}
+              hashes = {k: poc.digest(s) for k, s in sources.items()}
+              selected = []
+              for key in x["source_ids"]:
+                  s, ref = sources.get(key), engine.catalog.get(key)
+                  selected.append(bool_structure({
+                      "present": s is not None,
+                      "catalogued": ref is not None,
+                      "versionMatches": s is not None and ref is not None and s["version"] == ref["version"],
+                      "yearMatches": s is not None and ref is not None and s["year"] == ref["year"],
+                      "startsByDate": s is not None and s["valid_from"] <= x["as_of"],
+                      "endsAfterDate": s is not None and x["as_of"] <= s["valid_to"],
+                      "contentMatches": key in hashes and hashes[key] == engine.catalog_hashes.get(key),
+                  }))
+              claims = {}
+              for key, field in zip(keys, fields):
+                  c, m = x["candidate"]["claims"][key], engine.meta[key]
+                  sid = c["source_id"]
+                  s = sources.get(sid)
+                  matches = False
+                  if s is not None and key != "eligibility":
+                      expected = s["facts"].get("mandatory_conditions" if key == "conditions" else key)
+                      matches = (isinstance(expected, list) and all(v in c["value"] for v in expected)
+                                 and all(v in expected for v in c["value"])) if key == "conditions" else poc.same(c["value"], expected)
+                  claims[field] = bool_structure({
+                      "bindingPresent": bool(sid and c["section"]),
+                      "sourceAvailable": s is not None and sid in x["source_ids"],
+                      "sectionMatches": s is not None and sid == m["source"] and c["section"] == m["section"]
+                                        and bool(s["sections"].get(c["section"])),
+                      "valueMatches": matches,
+                      "hashBindingPresent": bool(sid and c["source_hash"]),
+                      "hashSourceAvailable": sid in hashes,
+                      "hashMatches": sid in hashes and c["source_hash"] == hashes[sid],
+                  })
+              a, d, w, c = x["applicant"], x["data_policy"], x["workflow"], x["candidate"]["claims"]
+              return structure({
+                  "targetMatches": boolean(poc.same(x["target"], engine.policy["target"])
+                                   and x["candidate"]["program_id"] == x["target"]["program_id"]
+                                   and c["municipality"]["value"] == x["target"]["municipality"]),
+                  "selectedSourceTargetsMatch": boolean(not any(s["id"] in x["source_ids"] and
+                      (s["municipality"] != x["target"]["municipality"] or s["program_id"] != x["target"]["program_id"])
+                      for s in x["sources"])),
+                  "selectedSources": lean_list(selected),
+                  "primarySourceSelected": boolean("SRC-01" in x["source_ids"]),
+                  "applicant": structure({"establishment": optional(a["establishment"]), "employees": optional(a["employees"]),
+                                           "taxArrears": optional(a["tax_arrears"]), "duplicate": optional(a["duplicate"])}),
+                  "claimedEligibility": "Eligibility." + {"candidate": "candidate", "needs_review": "needsReview",
+                                                            "out_of_scope": "outOfScope"}[c["eligibility"]["value"]],
+                  "claims": structure(claims),
+                  "mandatoryConditionsPresent": boolean(all(k in c["conditions"]["value"] for k in engine.policy["mandatory_conditions"])),
+                  "awardGuarantee": boolean(c["award_guarantee"]["value"]),
+                  "dataSettings": bool_structure({"synthetic": a["synthetic"],
+                      "classificationAllowed": d["classification"] == engine.policy["allowed_data"],
+                      "templateOnly": d["template_only"], "networkDisabled": d["network"] == "none",
+                      "sourcesAllowed": all(s["classification"] == "public_sample" for s in x["sources"])}),
+                  "workflow": bool_structure({"staffDraftOnly": w["use"] == engine.policy["permitted_use"],
+                      "humanConfirmation": w["human_confirmation"], "externalSend": w["external_send"],
+                      "automaticAward": w["automatic_award"]}),
+                  "textMatches": boolean(x["candidate"]["text"] == poc.build_text(c)),
+              })
+
+
+          lines = ["import CivicAnswerAdoption", "set_option warningAsError true",
+                   "set_option maxRecDepth 4096", "set_option maxHeartbeats 2000000",
+                   "open CivicAnswerAdoption", "namespace Conformance"]
+          lines.append(f'example : referenceSHA256 = "{poc.REFERENCE_SHA256}" := by decide')
+          lines.append(f'example : employeeLimit = {engine.catalog["SRC-01"]["facts"]["employee_limit"]} := by decide')
+          case_count = record_count = 0
+
+
+          def add_case(x):
+              global case_count
+              result = engine.evaluate(x)
+              if [c["id"] for c in result["checks"]] != [f"R{i:02d}" for i in range(1, 9)] or [t["key"] for t in result["trace"]] != keys:
+                  raise RuntimeError("Unexpected order or missing results")
+              name = f"sample_{case_count}"
+              lines.append(f"def {name} : Input := {observe(x)}")
+              checks = lean_list(status(c["status"]) for c in result["checks"])
+              trace = lean_list(status(t["status"]) for t in result["trace"])
+              allowed = action(engine.verification(result)["permitted_action"])
+              lines.append(f"example : (checks {name}, claimResults {name}, decision {name}, permittedAction (decision {name})) = "
+                           f"({checks}, {trace}, {status(result['decision'])}, {allowed}) := by decide")
+              case_count += 1
+              return name
+
+
+          def add_record(x, packet, name):
+              global record_count
+              verified, result = engine.verify(packet), engine.evaluate(x)
+              v, p = packet["payload"]["verification"], packet["payload"]
+              # Exclude statuses/decision/action here: those are checked by the Lean model.
+              detail_view = lambda cs: [{k: value for k, value in c.items() if k != "status"} for c in cs]
+              details_ok = (poc.same(detail_view(v["checks"]), detail_view(result["checks"]))
+                            and poc.same(v["claim_evidence"], result["trace"])
+                            and poc.same(v["source_sha256"], result["source_hashes"]))
+              record = structure({
+                  "integrityOK": boolean(verified["intact"]), "policyOK": boolean(verified["policy_match"]),
+                  "metadataOK": boolean(verified["metadata_match"]), "evidenceDetailsOK": boolean(details_ok),
+                  "recordedDecision": status(v["decision"]),
+                  "recordedChecks": lean_list(status(c["status"]) for c in v["checks"]),
+                  "recordedAction": action(v["permitted_action"]),
+                  "recordedUnresolved": lean_list(status(c["status"]) for c in p["unresolved"]),
+              })
+              lines.append(f"example : reverify {name} ({record}) = {boolean(verified['ok'])} := by decide")
+              record_count += 1
+
+
+          # Only temporary generated evidence; no extra repository files are needed.
+          (ROOT / ".lake").mkdir(exist_ok=True)
+          with tempfile.TemporaryDirectory(prefix="civic-conformance-", dir=ROOT / ".lake") as temporary:
+              temp = Path(temporary)
+              out = temp / "python-output"
+              subprocess.run([sys.executable, "poc.py", "--out", str(out)], check=True)
+              reports = list(out.glob("run-*/summary.json"))
+              if len(reports) != 1:
+                  raise RuntimeError("Exactly one execution report was expected")
+              summary = poc.read_json(reports[0])
+              if not summary["ok"] or summary["reference_tests"]["total"] < 30 or summary["self_tests"]["total"] < 122:
+                  raise RuntimeError("Python baseline or regression tests did not complete")
+              for record in summary["records"]:
+                  packet = poc.read_json(reports[0].parent / record["packet_file"])
+                  x = packet["payload"]["evaluation_input"]
+                  name = add_case(x)
+                  add_record(x, packet, name)
+                  has_draft = bool(record["draft_file"])
+                  if has_draft and not (reports[0].parent / record["draft_file"]).is_file():
+                      raise RuntimeError("The reported draft file does not exist")
+                  memory_ok = engine.verify(packet)["ok"]
+                  disk_ok = record["reverification"]["ok"]
+                  lines.append(f"example : draftAllowed (decision {name}) {boolean(memory_ok)} {boolean(disk_ok)} = {boolean(has_draft)} := by decide")
+
+              # Combined missing/known-failure inputs, boundaries, and all three claims.
+              for establishment, employees, tax, duplicate, claimed in itertools.product(
+                      [None, False, True], [None, 0, 20, 21, poc.MAX_SAFE_INTEGER],
+                      [None, False, True], [None, False, True], ["candidate", "needs_review", "out_of_scope"]):
+                  x = engine.base()
+                  x["applicant"].update(establishment=establishment, employees=employees, tax_arrears=tax, duplicate=duplicate)
+                  x["candidate"]["claims"]["eligibility"]["value"] = claimed
+                  x["candidate"]["text"] = poc.build_text(x["candidate"]["claims"])
+                  add_case(x)
+
+              # All subsets of the five mandatory conditions, including empty.
+              for included in itertools.product([False, True], repeat=5):
+                  x = engine.base()
+                  x["candidate"]["claims"]["conditions"]["value"] = [k for k, keep in zip(engine.policy["mandatory_conditions"], included) if keep]
+                  x["candidate"]["text"] = poc.build_text(x["candidate"]["claims"])
+                  add_case(x)
+
+              # Reference binding, template integrity, and combinations of blocking conditions.
+              mutations = [{"source_ids": []}, {"sources": []}, {"candidate.text": "Changed text"},
+                           {"applicant.employees": None, "workflow.external_send": True},
+                           {"applicant.employees": None, "candidate.claims.max_yen.value": 600000},
+                           {"workflow.human_confirmation": False}, {"workflow.automatic_award": True},
+                           {"data_policy.network": "enabled"}, {"data_policy.template_only": False}]
+              for key in keys:
+                  mutations += [{f"candidate.claims.{key}.source_id": None},
+                                {f"candidate.claims.{key}.section": None},
+                                {f"candidate.claims.{key}.section": "wrong_section"},
+                                {f"candidate.claims.{key}.source_hash": None},
+                                {f"candidate.claims.{key}.source_hash": "0" * 64}]
+              for changes in mutations:
+                  x = poc.apply_changes(engine.base(), changes)
+                  if "candidate.text" not in changes:
+                      x["candidate"]["text"] = poc.build_text(x["candidate"]["claims"])
+                  add_case(x)
+
+              # Complete finite status domain for the eight-input Python aggregator.
+              gate_count = 0
+              for vector in itertools.product(poc.STATUSES, repeat=8):
+                  lines.append(f"example : worst {lean_list(status(v) for v in vector)} = {status(poc.worst(list(vector)))} := by decide")
+                  gate_count += 1
+
+              # Tampered records: changing the hash as well must not conceal a wrong result.
+              base = engine.packet(engine.base())
+              packet_mutations = [
+                  {"payload.verification.decision": "REJECT"},
+                  {"payload.verification.permitted_action": "external_send"},
+                  {"payload.verification.checks.0.status": "REJECT"},
+                  {"payload.verification.claim_evidence.0.detail": "Changed evidence description"},
+                  {"payload.scope.real_world_validation": True},
+                  {"payload.requirements.version": "2.0"},
+                  {"payload.unresolved": [{"requirement": "R01", "status": "HOLD", "reason": "Changed"}]},
+                  {"payload.evaluation_input.candidate.claims.max_yen.value": 600000},
+              ]
+              for changes in packet_mutations:
+                  packet = poc.apply_changes(base, changes)
+                  packet = poc.seal(packet["payload"])
+                  x = packet["payload"]["evaluation_input"]
+                  if engine.verify(packet)["ok"]:
+                      raise RuntimeError("A changed record was unexpectedly accepted")
+                  name = add_case(x)
+                  add_record(x, packet, name)
+
+              lines.append("end Conformance")
+              for theorem in theorems:
+                  lines.append(f"#print axioms CivicAnswerAdoption.{theorem}")
+              generated = temp / "Conformance.lean"
+              generated.write_text("\n\n".join(lines) + "\n", encoding="utf-8")
+              # This is a real Lean kernel check of the generated concrete propositions.
+              result = subprocess.run(["lake", "env", "lean", "-DwarningAsError=true", str(generated)],
+                                      text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+              print(result.stdout)
+              if result.returncode != 0:
+                  raise RuntimeError("Lean conformance proof or axiom audit failed")
+              for theorem in theorems:
+                  if f"CivicAnswerAdoption.{theorem}" not in result.stdout:
+                      raise RuntimeError("Missing axiom-audit output for " + theorem)
+              allow = {"propext", "Quot.sound", "Classical.choice"}
+              for dependencies in re.findall(r"depends on axioms:\s*\[([^\]]*)\]", result.stdout):
+                  unexpected = {a.strip() for a in dependencies.split(",") if a.strip()} - allow
+                  if unexpected:
+                      raise RuntimeError("Unapproved axiom dependencies: " + repr(unexpected))
+              if any(word in result.stdout for word in ["sorryAx", "Lean.ofReduceBool", "Lean.trustCompiler"]):
+                  raise RuntimeError("Unapproved proof dependency")
+              report = (f"Lean model: {len(theorems)} named theorems checked.\n"
+                        f"Python/Lean projected-input conformance: {case_count} cases.\n"
+                        f"Eight-status aggregation domain: {gate_count} / {3**8}.\n"
+                        f"Record-view conformance: {record_count} checks, including tampered records.\n"
+                        f"Python self-tests: {summary['self_tests']['passed']} / {summary['self_tests']['total']}.\n"
+                        "Scope: universal theorems about the Lean model plus concrete implementation conformance; "
+                        "not whole-program formal verification of Python, SHA-256, input parsing or I/O.\n")
+              print(report)
+              summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+              if summary_path:
+                  with open(summary_path, "a", encoding="utf-8") as stream:
+                      stream.write("### Civic AI assurance verification\n\n```text\n" + report + "```\n")
+          PY

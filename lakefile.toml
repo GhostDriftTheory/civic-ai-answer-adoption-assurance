@@ -1,0 +1,7 @@
+name = "civic-ai-answer-adoption-assurance"
+version = "0.1.0"
+defaultTargets = ["CivicAnswerAdoption"]
+moreLeanArgs = ["-DwarningAsError=true"]
+
+[[lean_lib]]
+name = "CivicAnswerAdoption"
