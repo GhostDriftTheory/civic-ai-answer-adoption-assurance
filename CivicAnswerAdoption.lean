@@ -179,15 +179,16 @@ theorem freshness_pass_iff (s : SourceObservation) :
       s.versionMatches = true ∧ s.yearMatches = true ∧
       s.startsByDate = true ∧ s.endsAfterDate = true := by
   cases s with
-  | mk present catalogued version year starts ends _content =>
+  | mk present catalogued version year starts ends content =>
     cases present <;> cases catalogued <;> cases version <;> cases year <;>
-      cases starts <;> cases ends <;> decide
+      cases starts <;> cases ends <;> cases content <;> decide
 
 theorem source_binding_pass_iff (s : SourceObservation) :
     sourceBinding s = .PASS ↔ s.present = true ∧ s.contentMatches = true := by
   cases s with
-  | mk present _catalogued _version _year _starts _ends content =>
-    cases present <;> cases content <;> decide
+  | mk present catalogued version year starts ends content =>
+    cases present <;> cases catalogued <;> cases version <;> cases year <;>
+      cases starts <;> cases ends <;> cases content <;> decide
 
 /-- 参照・値・内容識別値の原子的照合結果。判定そのものは含めない。 -/
 structure ClaimEvidence where
@@ -215,8 +216,9 @@ theorem trace_pass_iff (e : ClaimEvidence) (pending : Bool) :
       e.bindingPresent = true ∧ e.sourceAvailable = true ∧
       e.sectionMatches = true ∧ e.valueMatches = true ∧ pending = false := by
   cases e with
-  | mk bound available section value _hashBound _hashAvailable _hashMatches =>
+  | mk bound available section value hashBound hashAvailable hashMatches =>
     cases bound <;> cases available <;> cases section <;> cases value <;>
+      cases hashBound <;> cases hashAvailable <;> cases hashMatches <;>
       cases pending <;> decide
 
 def claimBinding (e : ClaimEvidence) : Status :=
@@ -228,8 +230,9 @@ theorem claim_binding_pass_iff (e : ClaimEvidence) :
     claimBinding e = .PASS ↔ e.hashBindingPresent = true ∧
       e.hashSourceAvailable = true ∧ e.hashMatches = true := by
   cases e with
-  | mk _bound _available _section _value hashBound hashAvailable hashMatches =>
-    cases hashBound <;> cases hashAvailable <;> cases hashMatches <;> decide
+  | mk bound available section value hashBound hashAvailable hashMatches =>
+    cases bound <;> cases available <;> cases section <;> cases value <;>
+      cases hashBound <;> cases hashAvailable <;> cases hashMatches <;> decide
 
 /-- 固定7主張。空の主張集合を「全部通過」と扱う構成にしない。 -/
 structure Claims where
