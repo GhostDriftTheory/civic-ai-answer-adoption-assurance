@@ -322,6 +322,14 @@ jobs:
                   name = add_case(x)
                   add_record(x, packet, name)
 
+              # PoC 1 real-answer adapter: reuse this existing projector/model.
+              # Parsing/citation checks are explicit observation boundaries, not new model axioms.
+              import openai_answer_eval as api_eval
+              for api_sample in api_eval.lean_samples(engine):
+                  sample_name = add_case(api_sample["projection"])
+                  lines.append(f"example : (worst [decision {sample_name}, {status(api_sample['boundary'])}]) = "
+                               f"{status(api_sample['decision'])} := by decide")
+
               # Large, single-file elaboration can overflow Lean's native stack.
               # Preserve every concrete kernel-checked proposition, but compile
               # isolated temporary modules in bounded batches. No repo files added.
@@ -405,3 +413,8 @@ jobs:
                   with open(summary_path, "a", encoding="utf-8") as stream:
                       stream.write("### Civic AI assurance verification\n\n```text\n" + report + "```\n")
           PY
+      - name: Check real-answer adapter and published API evidence (offline)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python openai_answer_eval.py ci
