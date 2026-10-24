@@ -10,7 +10,7 @@
 
 本リポジトリには、外部通信のない操作デモ・Python実装と、OpenAI APIが実際に生成した回答を評価した2026年10月11日の実験記録を収録しています。使用する制度・資料・相談者はすべて架空・合成データです。実自治体への導入、行政上の決定、第三者認証を示すものではありません。
 
-- [操作デモ](https://ghostdrifttheory.github.io/civic-ai-answer-adoption-assurance/civic_ai_poc_public.html)：通常案内、条件不足、不整合の違いをブラウザ内で確認できます。外部通信はありません。
+- [操作デモ](https://ghostdrifttheory.github.io/civic-ai-answer-adoption-assurance/civic_ai_poc_demo.html)：通常案内、条件不足、不整合の違いをブラウザ内で確認できます。外部通信はありません。
 - [実API実験レポート](https://ghostdrifttheory.github.io/civic-ai-answer-adoption-assurance/report.html)：24件の原回答、採用判定、根拠、人工的な誤りを加えた試験を確認できます。
 
 HTMLファイルを保存してブラウザで開くこともできます。保存応答の再検証には `openai_answer_eval.py` を使用します。
@@ -33,7 +33,7 @@ Windowsで `python` が見つからず、Python Launcherが利用できる場合
 |---|---|
 | `poc.py` | 入力検査、採用判定、記録生成、再検証、自己テスト、実行レポート |
 | `cases.json` | 要求仕様、架空資料、基準入力、代表6ケース、参考30ケース、補完データ |
-| `civic_ai_poc_public.html` | ブラウザ内で独立して動く公開操作デモ、JavaScriptによる判定とJSON再検証 |
+| `civic_ai_poc_demo.html` | ブラウザ内で独立して動く公開操作デモ、JavaScriptによる判定とJSON再検証 |
 | `civic_ai_poc_demo.html` | 検証基準として内容識別値を固定したHTML |
 | `openai_answer_eval.py` | API原文の取得・評価、保存応答の再検証、オフライン試験 |
 | `answer_api_evidence.json` | 2026年10月11日のAPI実験の計画・応答・原文・判定・集計 |
@@ -82,7 +82,7 @@ output/
 
 ## ブラウザとPythonの相互再検証
 
-`civic_ai_poc_public.html` はPythonとは独立して、ブラウザ内で同じ採用条件を検査します。PythonとのHTTP接続はありません。判定処理・参照資料・ケース・JSON再検証は、検証基準の `civic_ai_poc_demo.html` と同じです。表示文と説明文だけを公開向けに整えています。
+`civic_ai_poc_demo.html` はPythonとは独立して、ブラウザ内で同じ採用条件を検査します。PythonとのHTTP接続はありません。判定処理・参照資料・ケース・JSON再検証は、検証基準の `civic_ai_poc_demo.html` と同じです。表示文と説明文だけを公開向けに整えています。
 
 Pythonの結果を操作デモHTMLで確認するには、操作デモHTMLを開き、**「要求と証拠」→「JSONを読み込む」**から、`packets/` 内のJSONを選びます。内容識別値、要求仕様、再計算した判定と根拠の一致が表示されます。
 
